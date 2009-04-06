@@ -1,0 +1,10 @@
+php_value	display_errors			1
+php_value	auto_prepend_file		"/var/www/webdesk/config/config.dev.inc"
+php_value	include_path			".:/var/www/webdesk/system:/var/www/webdesk/httpdocs/model"
+
+AcceptPathInfo	On
+RewriteEngine	On
+#RewriteBase	/
+RewriteCond	%{REQUEST_FILENAME} !-f
+RewriteCond	%{REQUEST_FILENAME} !-d
+RewriteRule	^(.*)$ index.php/$1 [L]
