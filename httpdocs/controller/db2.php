@@ -21,21 +21,27 @@ class std_ctl {
 
 class crud_ctl extends std_ctl {
 	var $table;
+	var $primary_key;
 	
 	function create () {
 		
+		$this->primary_key = db_insert($this->table, $_POST);
+		$this->read();
 	}
 	
-	function read() {
+	function read () {
 		
 	}
 	
 	function update () {
 		
+		db_update($this->table, $this->primary_key, $_POST);
+		$this->read();
 	}
 	
 	function delete () {
 		
+		db_delete($this->table, $this->primary_key);
 	}
 	
 }
