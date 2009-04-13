@@ -30,5 +30,9 @@ $tpl = new Template();
 $config->display_errors	= 1;
 $config->log_errors		= 1;
 
+// commons
+require_once	'classes/user.inc';
+require_once	'common_ctls.inc';
+require_once	'common_functions.php';
 
 ?>
