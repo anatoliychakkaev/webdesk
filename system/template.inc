@@ -42,8 +42,7 @@ class Template {
 		$v->type = $type;
 		$v->value = $value;
 		
-		// TEMPORARY tautology
-		if ($is_primary || true) {
+		if ($is_primary) {
 			$this->primary_vars[$name] = $v;
 		} else {
 			$this->ordinary_vars[$name] = $v;
@@ -74,16 +73,21 @@ class Template {
 		if ($this->_view) {
 			$base_name	= $config->template_dir . '/' . $this->_view;
 			
+			$checked_files = array();
 			$found = '';
 			
 			if ($format) {
 				// try to find format-oriented template
 				if (!$found && !is_file($found	= $base_name . '.' . $format . '.tpl')) {
+					$checked_files[] = $found;
 					$found = '';
 				}
-			} else {
+			}
+			
+			if (!$found) {
 				// try to find base template
 				if (!$found && !is_file($found	= $base_name . '.tpl')) {
+					$checked_files[] = $found;
 					$found = '';
 				}
 			}
@@ -91,8 +95,11 @@ class Template {
 			if ($found) {
 				// use custom smarty template to display variables
 				$this->require_smarty();
+				lg('Display using smarty: ' . $found);
 				$this->smarty->display($found);
 				return true;
+			} else {
+				lg('View not found in: ' . join(', ', $checked_files));
 			}
 		}
 		

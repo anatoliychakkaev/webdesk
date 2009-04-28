@@ -1,15 +1,18 @@
 <?php
+// :folding=explicit:
 
 class user {
 	
-	function user($id) {
+	function user ($init_by) { /* {{{ */
 		
-		if (is_string($id)) {
-			$where_what = 'user_key = "' . db_escape($id) . '" AND
+		// user can be init by string key or by int id
+		if (is_string($init_by)) {
+			$where_what = 'user_key = "' . db_escape($init_by) . '" AND
 				user_key_mode = "enabled"';
-		} elseif (is_numeric($id)) {
-			$where_what = 'id = "' . (int) $id . '"';
+		} elseif (is_numeric($init_by)) {
+			$where_what = 'id = "' . (int) $init_by . '"';
 		} else {
+			// what else? maybe array or object -- think about it
 			trigger_error('Numeric or string param expected');
 		}
 		
@@ -24,9 +27,10 @@ class user {
 		if (!$u) trigger_error('User not found');
 		
 		foreach($u as $k => $v) $this->$k = $v;
+		/* }}} */
 	}
 	
-	function has_role ($role_name) {
+	function has_role ($role_name) { /* {{{ */
 		
 		return db_fetch_value('
 			SELECT count(*)
@@ -38,6 +42,7 @@ class user {
 				role.name = "' . db_escape($role_name) . '"
 		');
 		
+		/* }}} */
 	}
 	
 }

