@@ -84,7 +84,7 @@ class Template {
 				}
 			}
 			
-			if (!$found) {
+			if (!$found && !in_array($format, array('json', 'debug'))) {
 				// try to find base template
 				if (!$found && !is_file($found	= $base_name . '.tpl')) {
 					$checked_files[] = $found;

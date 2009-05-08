@@ -1,8 +1,15 @@
 <?php
 	
-	function lg($str){
-		$str = str_replace('\'', '\\\'', $str);
-		exec("echo '$str' >> /tmp/weblog");
+	function lg($message, $type = 'message'){
+		$message = str_replace('\'', '\\\'', $message);
+		switch ($type) {
+		case 'message':
+			exec("echo '$message' >> /tmp/weblog");
+			break;
+		case 'error':
+			exec("echo \"\033[1;31mERROR\033[00m: $message.\" >> /tmp/weblog");
+			break;
+		}
 	}
 	
 	$path	= empty($_SERVER['PATH_INFO'])?'':$_SERVER['PATH_INFO'];
@@ -67,13 +74,13 @@
 	
 	if (isset($ctl->required_role) && $ctl->required_role) {
 		if (!$user->has_role($ctl->required_role)) {
-			exec("date >> /tmp/weblog");
-			exec("echo \"\033[1;31mERROR\033[00m: current user not accessed to controller $controller.\" >> /tmp/weblog");
+			lg("Current user not accessed to controller $controller.", 'error');
 			exit;
 		}
 	}
 	
 	$tpl->add('path_prefix', $path_prefix);
+	$tpl->add('pp', $path_prefix);
 	
 	$ctl->path   	=& $path;
 	$ctl->screen	=& $screen;
@@ -81,7 +88,7 @@
 	$ctl->tpl		=& $tpl;
 	$ctl->user		=& $user;
 	$ctl->init();
-	exec("echo 'Loading screen [{$screen}].' >> /tmp/weblog");
+	lg("Loading screen [{$screen}]");
 	$ctl->$screen();
 	$tpl->display();
 

@@ -1,9 +1,9 @@
 {include file=in.header.tpl}
 
 <div>
-	<a href="../..">{$config->db_server}</a> /
-	<a href="..">{$database}</a> /
-	<a href=".">{$table}</a> /
+	<a href="{$pp}">{$config->db_server}</a> /
+	<a href="{$pp}{$database}">{$database}</a> /
+	<a href="{$pp}{$database}/{$table}">{$table}</a> /
 	<a href="data" style="font-size:150%">data</a>
 </div>
 

@@ -12,6 +12,14 @@ class cs_ctl extends std_ctl { /* {{{ */
 			$this->screen = 'cheatsheets';
 		}
 		
+		switch (count($this->path)) {
+		case 2:
+			$this->screen = 'view_cheatsheet';
+			$this->tpl->add('cheatsheet', db_fetch_one('
+				SELECT * FROM cs_cheatsheet cs INNER JOIN cs_cheat c ON cs.id = c.cheatsheet_id  WHERE name = "' . db_escape($this->path[1]) . '"
+				'));
+			die('SELECT * FROM cs_cheatsheet cs INNER JOIN cs_cheat c ON cs.id = c.cheatsheet_id  WHERE name = "' . db_escape($this->path[1]) . '"');
+		}
 	}
 	
 	function cheatsheets() {
