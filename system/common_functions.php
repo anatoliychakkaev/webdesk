@@ -7,33 +7,42 @@ function rds2 ($str) {/* {{{ */
 
 function cm_get_module_path ($name) {/* {{{ */
 	global $config;
-	if($config["PROJECT_MODE"] == 'developing'){
-		$path = '../_development/';
-		for($d=opendir($path);$f=readdir($d);){
-			if($f=='.'||$f=='..'||!is_dir($path . $f))continue;
-			$f.='/';
-			if(file_exists($path . $f . $name . ' . js')){
-				$path.=$f;
-				break;
-			}
+	$path = '../modules/';
+	for($d=opendir($path);$f=readdir($d);){
+		if($f=='.'||$f=='..'||!is_dir($path . $f))continue;
+		$f.='/';
+		if(file_exists($path . $f . $name . ' . js')){
+			$path.=$f;
+			break;
 		}
-	}else{
-		$path = '../_modules/';
 	}
-	return $path=='../_development/'?'../_modules/':$path;
+	return $path;
 	/* }}} */
 }
 
-function call_module ($name, $parameters='') {/* {{{ */
+function call_module ($parameters) {/* {{{ */
+	$name = $parameters['name'];
 	$path = cm_get_module_path($name);
-	$js = $path . $name . ' . js';
-	$ht = $path . $name . ' . html';
+	$js = $path . $name . '.js';
+	$ht = $path . $name . '.html';
+	/*
 	if(file_exists($js))echo 'globals.modules["'.$name . '"] = ' . file_get_contents($js).';';
 	if(file_exists($ht))echo 'globals.modules["'.$name . '"].html = "' . str_replace("\n",'',str_replace("\r",'',str_replace('"','\\"',file_get_contents($ht)))).'";';
-	echo 'globals.people = ' . php2js($_SESSION['People']).';';
-	echo 'call_module("'.$name . '"'.($parameters==''?'':','.$parameters).');';
+	*/
+	if (file_exists($ht)) {
+		 
+		// load as file
+		$module = new SimpleXMLElement($ht, null, true);
+		$header = $module->xpath('//table[@id="columns"]/thead/tr/th');
+		$cols = array();
+		foreach($header as $node) {$cols[] = (string)$node;}
+		echo '<pre>';
+		print_r($cols);exit;
+	}
 	/* }}} */
 }
+
+
 
 /*
 	Function: cm_access

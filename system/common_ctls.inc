@@ -5,48 +5,88 @@ class std_ctl {
 	var $path;
 	var $format;
 	
-/* 	function init (&$path, &$screen, &$format) {
-		global $tpl;
-		
-		$this->path  	=& $path;
-		$this->screen	=& $screen;
-		$this->format	=& $format;
-		
-		$this->tpl   	=& $tpl;
-	} */
-	
 }
 
 class crud_ctl extends std_ctl {
+	/**
+	 * Table name
+	**/
 	var $table;
+	
+	/**
+	 * This field contains primary key of current record
+	**/
 	var $primary_key;
+	
+	/**
+	 * WTF???
+	 * todo: explain and move to std_ctl
+	**/
 	var $view_prefix = '';
 	
-	function create () {
+	/**
+	 * action /ctl/create
+	 * accept POST, GET
+	**/
+	function create() {
 		
-		$this->primary_key = db_insert($this->table, $_POST);
-		$this->read();
+		if ($_POST) {
+			$this->primary_key = db_insert($this->table, $_POST);
+			$this->read();
+		} else {
+			$this->tpl->view($this->view_prefix . 'create.' . $this->table);
+		}
+		
 	}
 	
-	function read () {
+	/**
+	 * action /ctl/entity, /ctl/entity/view
+	 * accept GET
+	**/
+	function read() {
+		
+		$this->tpl->add($this->table, db_select($this->table, $this->primary_key));
+		$this->tpl->view($this->view_prefix . 'view.' . $this->table);
 		
 	}
 	
-	function update () {
+	/**
+	 * action /ctl/entity/update
+	 * accept POST, GET
+	**/
+	function update() {
 		
 		if ($_POST) {
 			db_update($this->table, $this->primary_key, $_POST);
 			$this->read();
 		} else {
+			$this->tpl->add($this->table, db_select($this->table, $this->primary_key));
 			$this->tpl->view($this->view_prefix . 'update.' . $this->table);
 		}
 	}
 	
-	function delete () {
-		
-		db_delete($this->table, $this->primary_key);
+	/**
+	 * action /ctl/entity/delete
+	 * accept POST, GET
+	**/
+	function delete() {
+		if ($_POST) {
+			db_delete($this->table, $this->primary_key);
+		} else {
+			$this->tpl->add($this->table, db_select($this->table, $this->primary_key));
+			$this->tpl->view($this->view_prefix . 'delete.' . $this->table);
+		}
 	}
 	
+	/**
+	 * /ctl/list
+	 * accept GET
+	**/
+	function list() {
+		
+		$this->tpl->view($this->view_prefix . 'list.' . $this->table);
+		
+	}
 }
 
 ?>

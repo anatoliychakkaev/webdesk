@@ -9,7 +9,7 @@ class todo_handler { /* {{{ */
 	 * @param $problem_id int
 	 * @return object problem
 	 */
-	function get_problem ($problem_id) { /* {{{ */
+	function get_problem($problem_id) { /* {{{ */
 		/* TODO: Check owner */
 		return db_fetch_one('
 			SELECT
@@ -45,7 +45,7 @@ class todo_handler { /* {{{ */
 	 * @return int problem_id if success and 0 if error
 	 *
 	 */
-	function create_problem ($data) { /* {{{ */
+	function create_problem($data) { /* {{{ */
 		
 		$make_decision = isset($data['decide_problem']);
 		$data['owner_id'] = $this->user_id;
@@ -74,7 +74,7 @@ class todo_handler { /* {{{ */
 	 * @param $data array (assoc) Problem
 	 *
 	 */
-	function update_problem ($data) { /* {{{ */
+	function update_problem($data) { /* {{{ */
 		
 		return db_update('problem', $data);
 		
@@ -84,7 +84,7 @@ class todo_handler { /* {{{ */
 	/**
 	 * @param $problem_id array or integer or string of int separated by commas
 	 */
-	function delete_problem ($problem_id) { /* {{{ */
+	function delete_problem($problem_id) { /* {{{ */
 		/* TODO: check owner */
 		if (is_numeric($problem_id)) {
 			
@@ -114,7 +114,7 @@ class todo_handler { /* {{{ */
 		/* }}} */
 	}
 	
-	function get_problems () {
+	function get_problems() {
 		return db_fetch_all('
 			SELECT
 				p.*
@@ -143,7 +143,7 @@ class todo_handler { /* {{{ */
 		');
 	}
 	
-	function get_categories () {
+	function get_categories() {
 		
 		return db_fetch_all('SELECT * FROM problem_category');
 		
@@ -158,13 +158,13 @@ class todo_ctl extends std_ctl { /* {{{ */
 	 */
 	var $handler;
 	
-	function todo_ctl () {
+	function todo_ctl() {
 		
 		$this->handler = new todo_handler();
 		
 	}
 	
-	function problem ($problem_id = 0) {
+	function problem($problem_id = 0) {
 		
 		$problem = $this->handler->get_problem($problem_id);
 		$this->tpl->add($problem);
@@ -175,7 +175,7 @@ class todo_ctl extends std_ctl { /* {{{ */
 	/**
 	 * Add problem[ with decision]
 	 */
-	function problem_add () {		/* {{{ */
+	function problem_add() {		/* {{{ */
 		
 		if ($_POST) {
 			$id = $this->handler->create_problem($_POST);
@@ -201,7 +201,7 @@ class todo_ctl extends std_ctl { /* {{{ */
 	 * @accept POST
 	 * @path /ctl/P00000N/edit
 	 */
-	function problem_edit () {		/* {{{ */
+	function problem_edit() {		/* {{{ */
 		
 		if ($_POST) {
 			$this->handler->update_problem($_POST);
@@ -217,7 +217,7 @@ class todo_ctl extends std_ctl { /* {{{ */
 	 * @accept POST
 	 * @path /ctl/P00000N/delete
 	 */
-	function problem_delete () {	/* {{{ */
+	function problem_delete() {	/* {{{ */
 		$ids = cm_post('PID','str');
 		if(strlen($ids)==0){
 			echo '{errcode:1}';
@@ -232,7 +232,7 @@ class todo_ctl extends std_ctl { /* {{{ */
 	 * @accept POST
 	 * @path /ctl
 	 */
-	function problems () {			/* {{{ */
+	function problems() {			/* {{{ */
 		$user_id = 1; //$_SESSION['user']['id'];
 		$this->tpl->add('problems', $this->handler->get_problems());
 		$this->tpl->add('categories', $this->handler->get_categories());
@@ -243,7 +243,7 @@ class todo_ctl extends std_ctl { /* {{{ */
 	 * @accept POST
 	 * @path /ctl/P00000N/success
 	 */
-	function problem_success () {	/* {{{ */
+	function problem_success() {	/* {{{ */
 		
 		$isfull = cm_get('IsFull');
 		$isroll = cm_get('IsRollback');
@@ -272,7 +272,7 @@ class todo_ctl extends std_ctl { /* {{{ */
 	 * @accept POST
 	 * @path /ctl/P00000N/history
 	 */
-	function problem_history () {	/* {{{ */
+	function problem_history() {	/* {{{ */
 		$r = db_fetch_all('
 			SELECT
 				'.$problem_rows.'
@@ -293,7 +293,7 @@ class todo_ctl extends std_ctl { /* {{{ */
 	 * @accept POST
 	 * @path /ctl/P00000N/create_solution
 	 */
-	function solution_add () {		/* {{{ */
+	function solution_add() {		/* {{{ */
 		$d = cm_get('Date', 'date');
 		$ids = cm_get('ProblemID','str');
 		if(strlen($ids)==0){
@@ -339,7 +339,7 @@ class todo_ctl extends std_ctl { /* {{{ */
 	 * @accept POST
 	 * @path /ctl/P00000N/S00000M/edit
 	 */
-	function solution_save () {		/* {{{ */
+	function solution_save() {		/* {{{ */
 		db_execute('
 			UPDATE solution
 			SET
@@ -357,7 +357,7 @@ class todo_ctl extends std_ctl { /* {{{ */
 	 * @accept POST
 	 * @path /ctl/P00000N/S00000M/delete
 	 */
-	function solution_delete () {	/* {{{ */
+	function solution_delete() {	/* {{{ */
 		$ids = cm_get('SolID','str');
 		if(strlen($ids)==0){
 			echo '{errcode:1}';
@@ -386,7 +386,7 @@ class todo_ctl extends std_ctl { /* {{{ */
 	
 	//{{{ 
 	
-	function HelpTopic () {			/* {{{ */
+	function HelpTopic() {			/* {{{ */
 		$n = cm_get('Name','str');
 		
 		// get topic id
@@ -430,7 +430,7 @@ class todo_ctl extends std_ctl { /* {{{ */
 		/* }}} */
 	}
 	
-	function SaveHelpTopic () {		/* {{{ */
+	function SaveHelpTopic() {		/* {{{ */
 		if(empty($_POST['name']))break;
 		$c = cm_post('Content','str');
 		$uid = (int)$_SESSION['user']['id'];
@@ -471,12 +471,12 @@ class todo_ctl extends std_ctl { /* {{{ */
 		/* }}} */
 	}
 	
-	function Categories () {		/* {{{ */
+	function Categories() {		/* {{{ */
 		cm_query_n_pack('select id, name from problem_category');
 		/* }}} */
 	}
 	
-	function ModifiedTopics () {	/* {{{ */
+	function ModifiedTopics() {	/* {{{ */
 		echo cm_pack_query_to_json('
 			SELECT
 				ht.ID, ht.Name, ht.ContentID as CurrentContentID,

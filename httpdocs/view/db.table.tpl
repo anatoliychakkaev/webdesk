@@ -10,6 +10,8 @@
 <a href="{$table}/data">data</a>
 </div>
 
+{module name=db.table}
+{*
 <table cellspacing="0">
 	<thead>
 		<tr>
@@ -34,7 +36,7 @@
 	{/foreach}
 	</tbody>
 </table>
-
+*}
 <!--pre>
 {$create}
 </pre-->

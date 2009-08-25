@@ -34,6 +34,8 @@ class Template {
 		foreach ($this->primary_vars as $name=>$var) {
 			$this->smarty->assign($name, $var->value);
 		}
+		
+		$this->smarty->register_function('module', 'call_module');
 	}
 	
 	function add($name, $value, $type = '', $is_primary = true) {
