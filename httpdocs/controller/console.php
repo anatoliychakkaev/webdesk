@@ -21,7 +21,7 @@ function userErrorHandler($errno, $errmsg, $filename, $linenum, $vars) {
 	exit;
 }
 
-$old_error_handler = set_error_handler("userErrorHandler", E_ALL);
+$old_error_handler = set_error_handler("userErrorHandler");
 
 switch($screen){
 	case '':
@@ -37,6 +37,7 @@ switch($screen){
 		if($res === true){
 			echo $output;
 		}else{
+			echo 'error';
 			//trigger_error('Eval parse error');
 		}
 	break;
