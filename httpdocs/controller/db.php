@@ -16,7 +16,7 @@ class db_ctl extends std_ctl { /* {{{ */
 	var $db_name;
 	var $tbl_name;
 	
-	function init () { /* {{{ */
+	function init() { /* {{{ */
 		
 		$path = $this->path;
 		
@@ -46,7 +46,9 @@ class db_ctl extends std_ctl { /* {{{ */
 		
 		if ($this->tbl_name) {
 			$this->tpl->add('table', $this->tbl_name);
+			$this->full_tbl_name = '`' . db_escape($this->db_name) . '`.`' . db_escape($this->tbl_name) . '`';
 		}
+		
 		/* }}} */
 	}
 	
@@ -57,8 +59,8 @@ class db_ctl extends std_ctl { /* {{{ */
 	 * @accept: get
 	 * @view: db.server
 	 *
-	 */
-	function server () { /* {{{ */
+	**/
+	function server() { /* {{{ */
 		$this->tpl->add(
 			'databases',
 			db_fetch_array('SHOW DATABASES')
@@ -74,8 +76,8 @@ class db_ctl extends std_ctl { /* {{{ */
 	 * @accept: get
 	 * @view: db.database
 	 *
-	 */
-	function database () { /* {{{ */
+	**/
+	function database() { /* {{{ */
 		
 		$this->tpl->add(
 			'tables',
@@ -91,18 +93,17 @@ class db_ctl extends std_ctl { /* {{{ */
 	 * @accept: get
 	 * @view: db.table
 	 *
-	 */
-	function table () { /* {{{ */
+	**/
+	function table() { /* {{{ */
 		
-		$full_tbl_name = '`' . db_escape($this->db_name) . '`.`' . db_escape($this->tbl_name) . '`';
 		$this->tpl->add(
 			'columns',
-			db_fetch_all('DESCRIBE ' . $full_tbl_name)
+			db_fetch_all('DESCRIBE ' . $this->full_tbl_name)
 		);
 		
 		$this->tpl->add(
 			'create',
-			db_fetch_value('SHOW CREATE TABLE ' . $full_tbl_name, 'Create Table')
+			db_fetch_value('SHOW CREATE TABLE ' . $this->full_tbl_name, 'Create Table')
 		);
 		$this->tpl->view('db.table');
 		/* }}} */
@@ -114,24 +115,23 @@ class db_ctl extends std_ctl { /* {{{ */
 	 * @accept: get
 	 * @view: db.table_data
 	 *
-	 */
-	function data () { /* {{{ */
+	**/
+	function data() { /* {{{ */
 		
-		$full_tbl_name = '`' . db_escape($this->db_name) . '`.`' . db_escape($this->tbl_name) . '`';
 		$page = (int) @$_GET['page'] or $page = 0;
 		$iop = 10;
 		
 		$data = new stdClass();
-		$data->total_row_count = db_fetch_value('SELECT count(*) FROM ' . $full_tbl_name);
+		$data->total_row_count = db_fetch_value('SELECT count(*) FROM ' . $this->full_tbl_name);
 		$data->rows = db_fetch_all('
 			SELECT *
-			FROM ' . $full_tbl_name . '
+			FROM ' . $this->full_tbl_name . '
 			LIMIT ' . $iop * $page . ', ' . $iop
 		);
 		
 		$data->current_page = $page;
 		$data->pages_count = ceil($data->total_row_count / $iop);
-		$data->columns = db_fetch_array('DESCRIBE ' . $full_tbl_name, 'Field');
+		$data->columns = db_fetch_array('DESCRIBE ' . $this->full_tbl_name, 'Field');
 		
 		$this->tpl->add('data', $data, 'grid_rows');
 		$this->tpl->view('db.table_data');

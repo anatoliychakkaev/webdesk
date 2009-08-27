@@ -5,17 +5,17 @@ html, body {
 }
 
 .wrap {
-	background:#fff;
-	position:relative;
-	width:900px;
+	background: #ddd;
+	position: relative;
+	width: 900px;
 	margin: 0px auto;
 	
-	height:auto !important;
-	height:100%;
-	min-height:100%;
+	height: auto !important;
+	height: 100%;
+	min-height: 100%;
 	
-	border-left:1px solid #d8d9d8; 
-	border-right:1px solid #d8d9d8; 	
+	border-left: 1px solid #d8d9d8;
+	border-right: 1px solid #d8d9d8;
 }
 
 .contentdiv {
@@ -37,7 +37,8 @@ html, body {
 
 	width:100%; 
 	border-top: 1px solid #e8e9e8;
-	background:#fff;
+	background:#003;
+	color: #fff;
 	text-align:right;
 }
 
@@ -54,7 +55,7 @@ body {
 
 body{
 	margin: 0 0 0 0;
-	background:#eee;
+	background:#003;
 }
 
 a{

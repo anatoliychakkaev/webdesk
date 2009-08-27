@@ -66,25 +66,25 @@ class crud_ctl extends std_ctl {
 	}
 	
 	/**
-	 * action /ctl/entity/delete
+	 * action /ctl/entity/remove
 	 * accept POST, GET
 	**/
-	function delete() {
+	function remove() {
 		if ($_POST) {
 			db_delete($this->table, $this->primary_key);
 		} else {
 			$this->tpl->add($this->table, db_select($this->table, $this->primary_key));
-			$this->tpl->view($this->view_prefix . 'delete.' . $this->table);
+			$this->tpl->view($this->view_prefix . 'remove.' . $this->table);
 		}
 	}
 	
 	/**
-	 * /ctl/list
+	 * /ctl/
 	 * accept GET
 	**/
-	function list() {
+	function index() {
 		
-		$this->tpl->view($this->view_prefix . 'list.' . $this->table);
+		$this->tpl->view($this->view_prefix . 'index.' . $this->table);
 		
 	}
 }
