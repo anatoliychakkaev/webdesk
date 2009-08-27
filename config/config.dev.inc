@@ -10,7 +10,7 @@ $config->site_name		= 'Webdesk';
 
 // database connection
 $config->db_server		= 'localhost';
-$config->db_user		= 'be';
+$config->db_user		= 'root';
 $config->db_password	= '';
 $config->db_name		= 'webdesk';
 require_once	'db.inc';

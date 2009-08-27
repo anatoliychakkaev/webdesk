@@ -10,7 +10,7 @@ class db_ctl extends std_ctl { /* {{{ */
 	var $format;
 	
 	// roles accessed to this ctl
-	var $required_role = 'admin';
+	//var $required_role = 'admin';
 	
 	// handled by this controller
 	var $db_name;
