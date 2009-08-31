@@ -57,6 +57,11 @@
 		return $t;
 	}
 	
+	function db_select($table, $key) { //todo: unhardcode id
+		
+		return db_fetch_one('SELECT * FROM ' . $table . ' WHERE id = ' . (int)$key);
+	}
+	
 	function db_fetch_one($sql, $assoc = false) {
 		
 		$r = db_fetch_all($sql, $assoc);
@@ -115,17 +120,25 @@
 		$cols_names = array();
 		$pri = false;
 		while ($res = mysql_fetch_assoc($qr)) {
-			$cols->{$res['Field']} = $res;
+			$cols_full->{$res['Field']} = $res;
 			$cols_names[] = $res['Field'];
-			if ($res['Key'] == 'PRI') {
+			if ($res['Key'] === 'PRI') {
 				$pri = $res['Field'];
 			}
 		}
 		$table = new stdClass();
-		$table->columns = $cols_full;
 		$table->col_names = $cols_names;
 		$table->pk = $pri;
+		$table->columns = $cols_full;
+		
 		return $table;
+	}
+	
+	function db_date($timestamp = null) {
+		if (!$timestamp) {
+			$timestamp = time();
+		}
+		return date('Y-m-d H:i:s', $timestamp);
 	}
 	
 	function db_insert($table, $data) {
@@ -135,6 +148,7 @@
 		if (!is_array($data)) trigger_error('Array or object required as second parameter');
 		$columns = array();
 		$values = array();
+		$data['date_created'] = db_date();
 		foreach ($data as $column => $value) {
 			if (!in_array($column, $desc->col_names)) continue;
 			$columns[] = db_escape($column);
@@ -150,6 +164,33 @@
 		$x = mysql_query($sql);
 		
 		return $x?mysql_insert_id():false;
+	}
+	
+	function db_update($table, $pk, $data) {
+		$desc = db_desc($table);
+		if (!$desc->pk || !$pk) trigger_error('Primary key required for db_update (table ' . $table . ')');
+		if (is_object($data)) $data = get_object_vars($data);
+		if (!is_array($data)) trigger_error('Array or object required as second parameter');
+		$data['date_modified'] = db_date();
+		$update_columns = array();
+		foreach ($data as $column => $value) {
+			if (!in_array($column, $desc->col_names) || $column === $desc->pk) continue;
+			$value = db_escape($value);
+			if (!is_numeric($value)) $value = '"' . $value . '"';
+			$update_columns[] = '`' . db_escape($column) . '` = ' . $value;
+		}
+		if (!count($update_columns)) trigger_error('No matched columns');
+		
+		$sql = 'UPDATE ' . db_escape($table) . 
+		' SET ' . join($update_columns, ',') . 
+		' WHERE `' . $desc->pk  . '` = ' . (int)$pk;
+		return mysql_query($sql);
+	}
+	
+	function db_delete($table, $pk) {
+		$desc = db_desc($table);
+		if (!$desc->pk || !$pk) trigger_error('Primary key required for db_delete (table ' . $table . ')');
+		return db_execute('DELETE FROM ' . db_escape($table) . ' WHERE ' . $desc->pk . ' = ' . (int)$pk);
 	}
 	
 	mysql_connect($config->db_server, $config->db_user, $config->db_password) or die('Can not connect');

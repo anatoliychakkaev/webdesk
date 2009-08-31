@@ -10,7 +10,7 @@ $config->site_name		= 'Webdesk';
 
 // database connection
 $config->db_server		= 'localhost';
-$config->db_user		= 'root';
+$config->db_user		= 'wd';
 $config->db_password	= '';
 $config->db_name		= 'webdesk';
 require_once	'db.inc';
@@ -18,6 +18,7 @@ require_once	'db.inc';
 // session
 $config->session_name	= 'WDSESS';
 $config->session_path	= '/var/www/sessions';
+$config->security_token_secret = 'A$D`f40)83n#zmLPдьd98';
 require_once	'session.inc';
 
 // templator

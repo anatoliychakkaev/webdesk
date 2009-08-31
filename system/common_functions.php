@@ -1,12 +1,39 @@
 <?php /* :folding=explicit:tabSize=4:indentSize=4: */
 
+function config($name, $value = null) {
+	global $config;
+	
+	if ($value) {
+		return $config->$name = $value;
+	} else {
+		if (empty($config->$name)) {
+			lg('Parameter ' . $name . ' not defined in config', 'warning');
+		}
+		return isset($config->$name) ? $config->$name : '';
+	}
+}
+
+function lg($message, $type = 'message'){
+	$message = str_replace('\'', '\\\'', $message);
+	switch ($type) {
+	case 'message':
+		exec("echo '$message' >> /tmp/weblog");
+		break;
+	case 'error':
+		exec("echo \"\033[1;31mERROR\033[00m: $message.\" >> /tmp/weblog");
+		break;
+	case 'warning':
+		exec("echo \"\033[1;31mWARNING\033[00m: $message.\" >> /tmp/weblog");
+		break;
+	}
+}
+
 function rds2 ($str) {/* {{{ */
 	return mb_convert_encoding($str,'utf-8','windows-1251');
 	/* }}} */
 }
 
 function cm_get_module_path ($name) {/* {{{ */
-	global $config;
 	$path = '../modules/';
 	for($d=opendir($path);$f=readdir($d);){
 		if($f=='.'||$f=='..'||!is_dir($path . $f))continue;
@@ -408,12 +435,11 @@ class db{/* {{{ */
 	var $history = array();
 	
 	function db () {
-		GLOBAL $config;
-		$this->db = mysql_connect($config['DB_SERVER'], $config['DB_LOGIN'], $config['DB_PASSWORD']);
+		$this->db = mysql_connect(config('DB_SERVER'), config('DB_LOGIN'), config('DB_PASSWORD'));
 		if(!is_resource($this->db))
-			error('Can\'t connect on '.$config['DB_SERVER'].' for login '.$config['DB_LOGIN']);
-		mysql_select_db($config['DB_NAME'], $this->db) or
-			error('Can\'t select db '.$config['DB_NAME']);
+			error('Can\'t connect on ' . config('DB_SERVER') . ' for login ' . config('DB_LOGIN'));
+		mysql_select_db(config('DB_NAME'), $this->db) or
+			error('Can\'t select db ' . config('DB_NAME'));
 		$this->query("SET NAMES 'utf8'");
 	}
 	

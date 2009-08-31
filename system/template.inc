@@ -38,7 +38,7 @@ class Template {
 		$this->smarty->register_function('module', 'call_module');
 	}
 	
-	function add($name, $value, $type = '', $is_primary = true) {
+	function add($name, &$value, $type = '', $is_primary = true) {
 		
 		$v = new stdClass();
 		$v->type = $type;
@@ -51,7 +51,7 @@ class Template {
 		}
 		
 		if ($this->smarty) {
-			$this->smarty->assign($name, $value);
+			$this->smarty->assign_by_ref($name, $value);
 		}
 	}
 	
@@ -70,29 +70,10 @@ class Template {
 	}
 	
 	function display() {
-		global $config, $format;
-		
+		global $format;
 		if ($this->_view) {
-			$base_name	= $config->template_dir . '/' . $this->_view;
 			
-			$checked_files = array();
-			$found = '';
-			
-			if ($format) {
-				// try to find format-oriented template
-				if (!$found && !is_file($found	= $base_name . '.' . $format . '.tpl')) {
-					$checked_files[] = $found;
-					$found = '';
-				}
-			}
-			
-			if (!$found && !in_array($format, array('json', 'debug'))) {
-				// try to find base template
-				if (!$found && !is_file($found	= $base_name . '.tpl')) {
-					$checked_files[] = $found;
-					$found = '';
-				}
-			}
+			$found = $this->view_defined($this->_view, $checked_files);
 			
 			if ($found) {
 				// use custom smarty template to display variables
@@ -108,6 +89,33 @@ class Template {
 		// use easy way
 		echo $this->format_vars($format);
 		
+	}
+	
+	function view_defined($view = '', &$checked_files = array()) {
+		global $format;
+		$v = $view ? $view : $this->_view;
+		
+		$base_name	= config('template_dir') . '/' . $v;
+		
+		$found = '';
+		
+		if ($format) {
+			// try to find format-oriented template
+			if (!$found && !is_file($found	= $base_name . '.' . $format . '.tpl')) {
+				$checked_files[] = $found;
+				$found = '';
+			}
+		}
+		
+		if (!$found && !in_array($format, array('json', 'debug'))) {
+			// try to find base template
+			if (!$found && !is_file($found	= $base_name . '.tpl')) {
+				$checked_files[] = $found;
+				$found = '';
+			}
+		}
+		
+		return $found;
 	}
 	
 	function format_vars($format) {
