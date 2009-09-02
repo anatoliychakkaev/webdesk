@@ -59,20 +59,31 @@
 		
 		
 		$ctrl_file = 'controller/' . $controller . '.php';
-		if (!file_exists($ctrl_file)) {
-			exec("echo 'ERROR: Controller [$controller] not found (requested {$_SERVER['PATH_INFO']}).' >> /tmp/weblog");
-			die("<pre>Controller <strong>[$controller]</strong> not found.\n\n");
+		if (file_exists($ctrl_file)) {
+		
+			exec("echo 'Controller [{$GLOBALS['controller']}] loaded.' >> /tmp/weblog");
+			require_once $ctrl_file;
+			$ctl_class_name = $controller . '_ctl';
+			
+			if (!class_exists($ctl_class_name)) {
+				exit;
+			}
+			
+			$ctl = new $ctl_class_name();
+			
+		} else {
+			
+			$table = db_fetch_value('show tables like "%' . db_escape($controller) . '"');
+			if ($table) {
+				$ctl = new crud_ctl();
+				$ctl->table = $table;
+			} else {
+				exec("echo 'ERROR: Controller [$controller] not found (requested {$_SERVER['PATH_INFO']}).' >> /tmp/weblog");
+				die("<pre>Controller <strong>[$controller]</strong> not found.\n\n");
+			}
 		}
 		
-		exec("echo 'Controller [{$GLOBALS['controller']}] loaded.' >> /tmp/weblog");
-		require_once $ctrl_file;
-		$ctl_class_name = $controller . '_ctl';
 		
-		if (!class_exists($ctl_class_name)) {
-			exit;
-		}
-		
-		$ctl = new $ctl_class_name();
 		
 		if (isset($ctl->required_role) && $ctl->required_role) {
 			if (!$user->has_role($ctl->required_role)) {

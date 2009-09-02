@@ -38,14 +38,14 @@ label {
 {/literal}
 </style>
 
-<form action="{$pp}edit" method="POST" class="form" style="float:left">
+<form action="{$pp}edit" method="POST" class="form" style="float:left;">
 	<input type="hidden" name="security_token" value="{$security_token}" />
 	{
 		foreach 
 		from=$table_info->columns 
 		item=item 
 		key=key
-	}<div class="field">
+	}{if $key != $table_info->pk}<div class="field">
 		<label for="field_{$key}">{$key}</label>
 		{
 			if $item.EffectiveType == 'text'
@@ -54,7 +54,7 @@ label {
 		}<input id="field_{$key}" name="{$key}" value="{$item.Value}" class="{$item.EffectiveType}" /><br />{/if}
 	
 	</div>
-	{/foreach}
+	{/if}{/foreach}
 	<div class="submit_field">
 		<input type="submit" value="Save your changes" /> or 
 		<a href="{$pp}..">Cancel editing</a>

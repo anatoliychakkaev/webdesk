@@ -31,6 +31,8 @@ class crud_ctl extends std_ctl {
 	**/
 	var $table;
 	
+	var $entity_name = 'data';
+	
 	/**
 	 * This field contains primary key of current record
 	**/
@@ -65,27 +67,32 @@ class crud_ctl extends std_ctl {
 			}
 		}
 		
+		$this->tpl->add('pk', $this->primary_key);
+		
+		$cols = $this->table_info->columns;
+		foreach ($cols as $key => $value) {
+			if (preg_match('/(varchar|[a-z]*int)\\((\\d+)\\)/i', $cols->{$key}['Type'], $typedef)) {
+				$cols->{$key}['Size'] = $typedef[2];
+				if ($typedef[1] == 'varchar' && $typedef[2] > 255) {
+					$cols->{$key}['EffectiveType'] = 'text';
+				} else {
+					$cols->{$key}['EffectiveType'] = $typedef[1];
+				}
+			} else {
+				$cols->{$key}['EffectiveType'] = $cols->{$key}['Type'];
+			}
+		}
+		
 		if ($this->primary_key) {
 			$this->data = db_select($this->table, $this->primary_key);
-			$this->tpl->add('data', $this->data);
-			$this->tpl->add('pk', $this->primary_key);
+			$this->tpl->add($this->entity_name, $this->data);
 			$d = get_object_vars($this->data);
-			$cols = $this->table_info->columns;
 			foreach ($d as $key => $value) {
 				$cols->{$key}['Value'] = $value;
-				if (preg_match('/(varchar|[a-z]*int)\\((\\d+)\\)/i', $cols->{$key}['Type'], $typedef)) {
-					$cols->{$key}['Size'] = $typedef[2];
-					if ($typedef[1] == 'varchar' && $typedef[2] > 100) {
-						$cols->{$key}['EffectiveType'] = 'text';
-					} else {
-						$cols->{$key}['EffectiveType'] = $typedef[1];
-					}
-				} else {
-					$cols->{$key}['EffectiveType'] = $cols->{$key}['Type'];
-				}
 			}
-			
 		}
+		
+		$this->table_info->columns = $cols;
 		
 		$view_name = $this->view_prefix . $this->table . '.' . $this->screen;
 		if ($this->tpl->view_defined($view_name)) {
@@ -107,9 +114,6 @@ class crud_ctl extends std_ctl {
 		if ($_POST) {
 			if ($this->parent_ctl && $this->parent_ctl->entity_name && $this->parent_ctl->entity_id) {
 				$_POST[$this->parent_ctl->entity_name . '_id'] = $this->parent_ctl->entity_id;
-			} else {
-				var_dump($this->parent_ctl->entity_name, $this->parent_ctl->entity_id);
-				die('111');
 			}
 			$id = db_insert($this->table, $_POST);
 			$this->_relative_redirect($id . '/view' . ($this->format ? '.' . $this->format : ''));
