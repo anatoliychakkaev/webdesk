@@ -1,4 +1,61 @@
 {include file=in.header.tpl}
+<style>
+{literal}
+.todo_item {
+	line-height: 30px;
+}
+
+.todo_item input {
+	vertical-align: middle;
+}
+
+.todo_item a{
+	color: #aaf;
+}
+
+.todo_item {
+	padding-left: 30px;
+}
+
+.todo_item:hover {
+	padding-left: 0;
+}
+
+.todo_item:hover .hidden_option {
+	width: 30px;
+	display: inline;
+	float: left;
+}
+.hidden_option {
+	display: none;
+}
+{/literal}
+</style>
+
+<script>
+{literal}
+$(document).ready(function () {
+	$('.todo_item a.edit').click(function () {
+			
+		var $block = $(this).parent(),
+			$label = $block.find('label'),
+			$check = $block.find('input[type=checkbox]'),
+			id = $check.attr('id');
+			
+		if (this.is_in_editing_mode) {
+			$label.html($label.find('input').val());
+			$check.attr('id', id.replace(/_$/,''));
+		} else {
+			$label.html('<input value="' + $label.html() + '" style="width: 300px">');
+			$label.find('input')[0].select();
+			$check.attr('id', id + '_');
+		}
+		this.is_in_editing_mode = !this.is_in_editing_mode;
+		return false;
+	});
+});
+{/literal}
+</script>
 
 <h2>Список задач {$todo_list->name}</h2>
 
@@ -7,8 +64,9 @@
 {if $index}
 
 	{foreach from=$index item=row}
-	<div id="block_{$row->id}" style="line-height:30px;">
-		<input type="checkbox" id="item_{$row->id}"  /> <label for="item_{$row->id}">{$row->name}</label> 
+	<div id="block_{$row->id}" class="todo_item">
+		<a class="hidden_option edit" href="{$pp}{$row->id}/edit">Edit</a>
+		<input type="checkbox" id="item_{$row->id}"  /> <label for="item_{$row->id}">{$row->name}</label>
 	</div>
 	{/foreach}
 	

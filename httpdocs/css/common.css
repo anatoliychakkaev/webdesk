@@ -5,7 +5,7 @@ html, body {
 }
 
 .wrap {
-	background: #ddd;
+	background: #181818;
 	position: relative;
 	width: 900px;
 	margin: 0px auto;
@@ -14,8 +14,8 @@ html, body {
 	height: 100%;
 	min-height: 100%;
 	
-	border-left: 1px solid #d8d9d8;
-	border-right: 1px solid #d8d9d8;
+	border-left: 1px solid #282828;
+	border-right: 1px solid #282828;
 }
 
 .contentdiv {
@@ -36,14 +36,15 @@ html, body {
 	vertical-align:middle;
 
 	width:100%; 
-	border-top: 1px solid #e8e9e8;
-	background:#003;
-	color: #fff;
+	border-top: 1px solid #222;
+	background:#111;
+	color: #666;
 	text-align:right;
 }
 
 body {
-	color:#000;
+	color: #aaa;
+	background: #000;
 	font-family:Verdana,Tahoma,Helvetica,Arial,sans-serif;
 	font-size:75%;
 	font-size-adjust:none;
@@ -55,7 +56,7 @@ body {
 
 body{
 	margin: 0 0 0 0;
-	background:#003;
+	/* background:#003; */
 }
 
 a{
@@ -76,6 +77,32 @@ form{
 
 pre{
 	margin: 0px;
+}
+
+input{
+	background: #666;
+	color: #ddd;
+	border: 1px solid #999;
+}
+
+input:focus{
+	border: 1px solid #ddd;
+	color: #fff;
+}
+
+input[type='submit'] {
+	font-weight: 700;
+	background: #555;
+	border-top: 1px solid #666;
+	border-left: 1px solid #666;
+	border-right: 1px solid #444;
+	border-bottom: 1px solid #444;
+}
+
+input[type='checkbox'] {
+	background-color: #555;
+	color: #555;
+	border: 1px solid #444;
 }
 
 table{
