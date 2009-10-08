@@ -141,96 +141,126 @@
 		/* }}} */
 	}
 	
+	function handle_userfunc(menu) {
+		if (!$.isFunction(menu.f)) {
+			return true;
+		}
+		
+		if (typeof menu.caller !== 'object') {
+			return false;
+		}
+		
+		// result of user function should be object or boolean
+		var userfunc_result = menu.f(menu);
+		if (typeof userfunc_result === 'object') {
+			menu.a = userfunc_result;
+			menu.r = false;
+		} else {
+			menu.r = !userfunc_result;
+		}
+		
+		return true;
+	}
+	
+	function handle_async(menu) {
+		if (!menu.async) {
+			return true;
+		}
+		if (!menu.a) {
+			menu.done = function () {
+				menu.v = false;
+				$.cmenu.show(menu, menu.caller);
+			};
+			return false;
+		}
+		menu.r = false;
+		return true;
+	}
+	
+	function handle_rendered(menu) {
+		if (menu.r) {
+			return false;
+		}
+		menu.r = true;
+		return true;
+	}
+	
+	function is_invisible(item) {
+		return item.visible !== undefined && !item.visible ||
+			item.acid !== undefined && $.inArray(item.acid, globals.accessedActions || []);
+	}
+	
+	function render_item(menu, i, radio) { /* {{{ */
+		var a = menu.a[i];
+		if (a === '-') {                        
+			return '<hr' + ($.browser.msie?' style="width:50px;align:center;"':'') + '/>';
+			//return h += '<div class="hr"></div>';
+		}
+		
+		if (a.constructor === Array) {
+			a = new MenuItem(a[0], a[1], a[2], a[3]);
+			menu.a[i] = a;
+		}
+		
+		menu.a[i].parent = menu.parent_item;
+		
+		if (is_invisible(a)) {
+			return '';
+		}
+		
+		if (a.submenu && (!a.submenu.cn || a.submenu.cn !== 'cmenu')) {
+			a.submenu = $.cmenu.get_menu(a.submenu);
+		}
+		
+		var caption = a.caption;
+		if (radio && caption === radio) { // radio
+			caption = '<strong><u>' + a.caption + '</u></strong>';
+		} else { // other
+			
+		}
+		
+		return '<div class="cmenuItem" item_id="' + i + '" ' +
+			(a.disabled? 
+				// Недоступный элемент
+				'style="color:#808080;" ':
+				// Доступный элемент
+				'onclick="$.cmenu.exec(this);" ' +
+				
+				//'onclick="$.cmenu.exec(' + x.id + ',\'' + i + '\');" ' +
+				(a.submenu?
+				// Есть подменю
+				get_caller(a.submenu, 'hovertimeout'):
+				// Нет подменю
+				' onmouseover="$.cmenu.to=setTimeout(function(){var m = $.cmenu.get_menu(' + menu.id + ');m && m.sub && $.cmenu.hide_menu(m.sub);},300);" onmouseout="clearTimeout($.cmenu.to);" ')
+			) +
+		'>' +
+		cm_img(a.icon?a.icon:'undefined', ' ') + ' ' + caption +
+		(a.submenu?cm_img('page-next.gif', ' ', 'position:absolute;right:0px;vertical-align:middle;'):'') + '</div>';
+		/* }}} */
+	}
+	
+	function render_menu(menu) {			/* Render menu items	{{{ */
+		if (!handle_userfunc(menu) || !handle_async(menu) || !handle_rendered(menu)) {
+			return false;
+		}
+		
+		if (menu.type === 'radio') {
+			var radio = menu.get();
+		} else {
+			radio = false;
+		}
+		var h = '';
+		for (var i in menu.a) {
+			if (menu.a[i]) {
+				h += render_item(menu, i, radio);
+			}
+		}
+		menu.jq.html(h);
+		/* }}} */
+	}
+	
 	$.cmenu = {
 		c: [],
-		render: function (menu) {			/* Render menu items	{{{ */
-			if ($.isFunction(menu.f)) {
-				if (typeof menu.caller !== 'object') {
-					return false;
-				}
-				// result of user function should be object or boolean
-				var userfunc_result = menu.f(menu);
-				if (typeof userfunc_result === 'object') {
-					menu.a = userfunc_result;
-					menu.r = false;
-				} else {
-					menu.r = !userfunc_result;
-				}
-			}
-			if (menu.async) {
-				if (!menu.a) {
-					menu.done = function () {
-						menu.v = false;
-						$.cmenu.show(menu, menu.caller);
-					};
-					return false;
-				}
-				menu.r = false;
-			}
-			if (menu.r) {
-				return false;
-			}
-			menu.r = true;
-			
-			var h = '';
-			if (menu.type === 'radio') {
-				var radio = menu.get();
-			} else {
-				radio = false;
-			}
-			var strAsd = ' onmouseover="$.cmenu.to=setTimeout(function(){var m = $.cmenu.get_menu(' + menu.id + ');m && m.sub && $.cmenu.hide_menu(m.sub);},300);" onmouseout="clearTimeout($.cmenu.to);" ';
-			for (var i in menu.a) {
-				var a = menu.a[i];
-				if (a === '-') {                        
-					h += '<hr' + ($.browser.msie?' style="width:50px;align:center;"':'') + '/>';
-					//h += '<div class="hr"></div>';
-					continue;
-				}
-				
-				if (a.constructor === Array) {
-					a = (function (x) {
-						return new MenuItem(x[0], x[1], x[2], x[3]);
-					})(a);
-					menu.a[i] = a;
-				}
-				menu.a[i].parent = menu.parent_item;
-				// Условие невидимости действия
-				if (a.visible !== undefined && !a.visible ||
-					(a.acid !== undefined && $.inArray(a.acid, globals.accessedActions || []))) {
-					continue;
-				}
-				
-				if (a.submenu && (!a.submenu.cn || a.submenu.cn !== 'cmenu')) {
-					a.submenu = this.get_menu(a.submenu);
-				}
-				// Calc caption
-				var caption = a.caption;
-				if (radio && caption === radio) { // radio
-					caption = '<strong><u>' + a.caption + '</u></strong>';
-				} else { // other
-					
-				}
-				h += '<div class="cmenuItem" item_id="' + i + '" ' +
-					(a.disabled? 
-						// Недоступный элемент
-						'style="color:#808080;" ':
-						// Доступный элемент
-						'onclick="$.cmenu.exec(this);" ' +
-						
-						//'onclick="$.cmenu.exec(' + x.id + ',\'' + i + '\');" ' +
-						(a.submenu?
-						// Есть подменю
-						get_caller(a.submenu, 'hovertimeout'):
-						// Нет подменю
-						strAsd)
-					) +
-				'>' +
-				cm_img(a.icon?a.icon:'undefined', ' ') + ' ' + caption +
-				(a.submenu?cm_img('page-next.gif', ' ', 'position:absolute;right:0px;vertical-align:middle;'):'') + '</div>';
-			}
-			menu.jq.html(h);
-			/* }}} */
-		},
 		exec: function (item_element) {		/* Execute action	{{{ */
 			item_element = $(item_element);
 			var act = item_element.attr('item_id');
@@ -247,7 +277,7 @@
 			}
 			if (m.type === 'radio') {
 				m.set(m.a[act].caption);
-				this.render(m);
+				render_menu(m);
 				return false;
 			}
 			if ($.isFunction(m.a[act].execute) && !m.a[act].disabled) {
@@ -261,11 +291,8 @@
 		**/
 		get_menu: function (initializer) {
 			return (
-				(typeof initializer).search(/function|object|undefined/) === -1
-				?
-				this.c[initializer]
-				:
-				create_cmenu_object(initializer)
+				(typeof initializer).search(/function|object|undefined/) === -1 ?
+				this.c[initializer] : create_cmenu_object(initializer)
 			);
 		},
 		hide_menu: function (m) {		/* {{{ */
@@ -303,7 +330,6 @@
 			// то надо оставить p подсвеченным (класс cmenuItemWithSub);
 			// также надо установить родительскому меню ссылку на дочернее, а дочернему - на родителя
 			// и еще - если у нашего меню уже есть подменю - скрыть его
-			console.log(jqp.attr('class'), cls_item);
 			if (jqp.hasClass(cls_item) && !jqp.hasClass(cls_item_with_submenu)) {
 				jqp.addClass(cls_item_with_submenu);
 				var pm = $.cmenu.get_menu(parseInt($(parentNode.parentNode).attr('iuid'), 10));
@@ -325,7 +351,7 @@
 			
 			menu.p = get_path(parentNode);
 			menu.parent_item = menu.p[menu.p.length - 1].cmenu_item;
-			this.render(menu);
+			render_menu(menu);
 			
 			if (menu.jq[0].offsetParent !== menu.p[0].offsetParent) {
 				menu.jq.appendTo(menu.p[0].offsetParent);
