@@ -1,0 +1,6 @@
+.str{color:red;}
+.func{color:blue;}
+.comm{color:orange;}
+.kwrd{font-weight:bold;}
+.str span{color:red;font-weight:normal;}
+.comm span{color:orange;font-weight:normal;}
