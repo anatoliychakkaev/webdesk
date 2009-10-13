@@ -18,6 +18,10 @@ html, body {
 	border-right: 1px solid #d4d5d4;
 }
 
+div.clear {
+	clear: both;
+}
+
 .contentdiv {
 	padding:10px;
 }

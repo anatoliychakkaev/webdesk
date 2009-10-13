@@ -5,11 +5,11 @@
 			{$note->note|nl2br|truncate:300:'...'}
 		</div>
 		<div class="options">
-			Запись создана {$note->date_created|timeago}
+			Запись создана <strong>{$note->date_created|timeago}</strong> |
+			<a href="{$pp}{$note->id}">Подробнее</a> | 
+			<a href="{$pp}{$note->id}/edit">Редактировать</a>
 		</div>
-		<div class="read_more">
-			<a href="{$pp}{$note->id}">Подробнее</a>
-		</div>
+			
 	</div>
 	{/foreach}
 {else}

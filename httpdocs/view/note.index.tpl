@@ -7,11 +7,27 @@
 	padding: 10px;
 }
 .options {
-	font-size: 12px;
+	font-size: 11px;
+	color: #888;
 }
-.quick_post_box textarea {
+.options a, .options a:visited {
+	color: #66c;
+}
+.options a:hover {
+	color: #22d;
+}
+
+.quick_post_box {
+	background: #fff;
+	border: 1px solid #669;
+	margin: 10px;
+	padding: 10px;
+}
+
+.quick_post_box textarea, .quick_post_box #preview {
 	width: 400px;
 	height: 150px;
+	float: left;
 }
 .topic {
 	background: #ddd;
@@ -48,7 +64,9 @@ $().ready(function () {
 
 <div class="quick_post_box">
 	<form action="{$pp}create" method="POST" id="quick_post_form">
-		<textarea name="note"></textarea><br />
+		<textarea name="note"></textarea>
+		<div id="preview"></div>
+		<div class="clear"></div>
 		<input type="submit" value="Добавить запись" />
 	</form>
 </div>
