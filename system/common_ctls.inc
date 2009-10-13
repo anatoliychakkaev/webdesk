@@ -163,8 +163,22 @@ class crud_ctl extends std_ctl {
 		
 		$sql = 'SELECT * FROM ' . db_escape($this->table);
 		if ($this->parent_ctl && $this->parent_ctl->entity_name && $this->parent_ctl->entity_id) {
-			$sql .= ' WHERE `' . $this->parent_ctl->entity_name . '_id` = ' . 
-				(int)$this->parent_ctl->entity_id;
+			$parent_fk = $this->parent_ctl->entity_name . '_id';
+			$this_fk = $this->entity_name . '_id';
+			$parent_link_table = config('db_prefix') . $this->parent_ctl->entity_name . '_to_' . $this->entity_name;
+			$parent_link_table_alter = config('db_prefix') . $this->entity_name . '_to_' . $this->parent_ctl->entity_name;
+			if (db_object_exists($this->table, $parent_fk)) {
+				$sql .= ' WHERE `' . $parent_fk . '` = ' . (int)$this->parent_ctl->entity_id;
+			} elseif (db_object_exists($parent_link_table, array($parent_fk, $this_fk))) {
+				$sql .= ' WHERE EXISTS (SELECT * FROM `' . $parent_link_table . 
+				'` x WHERE x.`' . $parent_fk . '` = ' . (int)$this->parent_ctl->entity_id . ' AND ' . $this->table . '.id = x.' . $this_fk . ')';
+			} elseif (db_object_exists($parent_link_table_alter, array($parent_fk, $this_fk))) {
+				$sql .= ' WHERE EXISTS (SELECT * FROM `' . $parent_link_table_alter . 
+				'` x WHERE x.`' . $parent_fk . '` = ' . (int)$this->parent_ctl->entity_id . ' AND ' . $this->table . '.id = x.' . $this_fk . ')';
+			} else {
+				lg("Can not find master entity ({$this->parent_ctl->entity_name}) for slave entity ({$this->entity_name}): field $parent_fk in table $this->table not found, also not found table $parent_link_table or $parent_link_table_alter with columns ($parent_fk, $this_fk)", 'error');
+			}
+			
 		}
 		$this->tpl->add('index', db_fetch_all($sql));
 	}
