@@ -29,10 +29,11 @@
 		// find another way to init user
 		$user = new user(4);
 	}
-	
+		
 	// define controllers
 	$path_offset = 0;
 	$parent_ctl = null;
+	/*
 	do {
 		
 		$controller = @$path[$path_offset] or	$controller = 'default';
@@ -57,7 +58,7 @@
 		}
 		
 		
-		
+	/*	
 		$ctrl_file = 'controller/' . $controller . '.php';
 		if (file_exists($ctrl_file)) {
 		
@@ -72,18 +73,16 @@
 			$ctl = new $ctl_class_name();
 			
 		} else {
-			
+	
 			$table = db_fetch_value('show tables like "%' . db_escape($controller) . '"');
 			if ($table) {
 				$ctl = new crud_ctl();
 				$ctl->table = $table;
 			} else {
 				exec("echo 'ERROR: Controller [$controller] not found (requested {$_SERVER['PATH_INFO']}).' >> /tmp/weblog");
-				die("<pre>Controller <strong>[$controller]</strong> not found.\n\n");
+				die("<pre>Controller <strong>[$controller]</strong> not found..\n\n");
 			}
 		}
-		
-		
 		
 		if (isset($ctl->required_role) && $ctl->required_role) {
 			if (!$user->has_role($ctl->required_role)) {
@@ -115,19 +114,80 @@
 		$ctl->tpl		=& $tpl;
 		$ctl->user		=& $user;
 		$ctl->parent_ctl = $parent_ctl;
-		$ctl->init();
+		$ctl->__init();
 		if (method_exists($ctl, $screen)) {
 			lg("Loading screen [{$screen}]");
 			$ctl->$screen();
 		} else {
 			// screen not found - we should decrease offset, increased because screen was found
 			// suggestion was wrong, maybe screen component - child controller?
-			$path_offset -= 1;
+			//$path_offset -= 1;
 		}
 		
 		$parent_ctl = $ctl;
 		
 		lg('Path offset is ' . $path_offset);
+		break;
+		
+	} while ($path_offset < count($path));
+	*/
+	/**
+	 * Firstly, try to find controller class described in file
+	 * if not found, try initialize crud controller from database automatically
+	 *
+	 * @param string $controller - name on controller, interpreted in function 
+	 *	as part of filename or part of tablename
+	 * @return object controller
+	**/
+	function get_controller_by_name($controller) {
+		$ctrl_file = 'controller/' . $controller . '.php';
+		if (file_exists($ctrl_file)) {
+		
+			exec("echo 'Controller [{$GLOBALS['controller']}] loaded.' >> /tmp/weblog");
+			require_once $ctrl_file;
+			#TODO: find way to make class name independ of file name
+			$ctl_class_name = $controller . '_ctl';
+			
+			if (!class_exists($ctl_class_name)) {
+				exit;
+			}
+			
+			$ctl = new $ctl_class_name();
+			
+		} else {
+			#TODO: add security restrictions (black/white lists) for crud cotroller
+			#TODO: improve search algorythm (strict compare instead of "like '%name'")
+			$table = db_fetch_value('show tables like "%' . db_escape($controller) . '"');
+			if ($table) {
+				$ctl = new crud_ctl();
+				$ctl->table = $table;
+			} else {
+				exec("echo 'ERROR: Controller [$controller] not found (requested {$_SERVER['PATH_INFO']}).' >> /tmp/weblog");
+				die("<pre>Controller <strong>[$controller]</strong> not found.\n\n");
+			}
+		}
+		
+		return $ctl;
+	}
+
+	do {
+		
+		$controller = @$path[$path_offset] or	$controller = 'default';
+		$path_offset += 1;
+		
+		$ctl = get_controller_by_name($controller);
+		$ctl->parent_ctl = $parent_ctl;
+		$ctl->tpl =& $tpl;
+		$ctl->user =& $user;
+		
+		$path_prefix .= $controller . '/' . $ctl->__parse_path($path_offset, $path);
+		$ctl->path_prefix =& $path_prefix;
+		
+		$ctl->__init();
+		$ctl->__run();
+		
+		$parent_ctl = $ctl;
+		break;
 		
 	} while ($path_offset < count($path));
 	

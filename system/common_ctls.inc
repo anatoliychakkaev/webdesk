@@ -5,7 +5,29 @@ class std_ctl {
 	var $path;
 	var $format;
 	
-	function init () {
+	function __parse_path(&$current_index, $path) {
+		
+		$path_prefix = '';
+		$this->screen 	= @$path[$current_index]	or	$this->screen		= '';
+		// define entity (if action starts with numer or uppercase letter)
+		if (preg_match('/^([A-Z]*)([0-9]+)$/', $this->screen, $entity)) {
+			
+			$this->entity_code	= $entity[1];
+			$this->entity_id		= (int) $entity[2];
+			$this->screen 		= @$path[$current_index + 1]	or	$this->screen	= '';
+			
+			$path_prefix .= $this->entity_code . $this->entity_id . '/';
+			
+		} else {
+			
+			$this->entity_code	= '';
+			$this->entity_id		= 0;
+			
+		}
+		return $path_prefix;
+	}
+	
+	function __init() {
 		
 		/* if ($_POST && (
 			empty($_POST['security_token']) || 
@@ -18,6 +40,10 @@ class std_ctl {
 		$this->security_token = md5(config('security_token_secret') . time());
 		$_SESSION['security_token'] = $this->security_token;
 		$this->tpl->add('security_token', $this->security_token); */
+	}
+
+	function __run() {
+		$this->{$this->screen}();
 	}
 	
 	function _relative_redirect($path = '') {
@@ -47,7 +73,7 @@ class crud_ctl extends std_ctl {
 	/**
 	 *
 	**/
-	function init() {
+	function __init() {
 		
 		if (!$this->table) trigger_error('crud controller requires $table field');
 		
@@ -102,9 +128,9 @@ class crud_ctl extends std_ctl {
 			$this->tpl->view('crud/' . $this->screen);
 		}
 		
-		parent::init();
+		parent::__init();
 	}
-	
+
 	/**
 	 * action /ctl/create
 	 * accept POST, GET

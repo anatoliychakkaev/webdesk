@@ -1,0 +1,252 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- :mode=html:collapseFolds=1:indentSize=4:tabSize=4:folding=explicit: -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Context menu</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<script language='javascript' src='/scripts/jquery-1.2.6.min.js'></script>
+	<script language='javascript' src='/scripts/1602.cmenu.js'></script>
+	<!--script language='javascript' src='/scripts/cmenu.packed.js'></script-->
+	<script language='javascript' src='/scripts/jquery.syntax.js'></script>
+	<link rel='stylesheet' href='/css/syntax.css' />
+<style>
+/* page style */
+body {
+	font-family: verdana;
+	font-size: 80%;
+}
+
+/* required cmenu styles */
+.cmenu {
+	display:none;
+	position:absolute;
+	cursor: default;
+	background: #D4D0C8;
+	border: 1px solid #808080;
+	padding: 2px;
+	z-index:100;
+}
+
+.cmenu img{
+	vertical-align:middle;
+}
+.cmenuItem{
+	padding: 2px;
+	padding-right: 16px;
+	white-space: nowrap;
+	font-size:11px;
+}
+.cmenuItem:hover{
+	background: #336;
+	color: #fff;
+}
+
+.cmenuItemWithSub{
+	background: #336;
+	color: #fff;
+}
+
+.hr{
+	width: 100%;
+	height: 1px;
+	border: 1px solid #999;
+	background: #aaa;
+}
+
+/* sample */
+
+#code, #lt, #rt, #lb, #rb {position: absolute; z-index: 1;}
+#lt, #lb {left: 10px;}
+#rt, #rb {right: 10px;}
+#rb, #lb {bottom: 10px;}
+#rt, #lt {top: 10px;}
+#code {
+	top:30px;
+	left:0;
+	right:0;
+	bottom:0;
+	z-index:0;
+	margin-left:200px;
+}
+pre {
+	font-size:12px;
+}
+
+</style>
+
+<script>
+
+/*global jQuery, $, MenuItem, asdasdasd*/
+
+
+$(document).ready(function () {
+	var def_act = function (x, parent) {
+		alert(x.caption);
+	};
+	/* var asda = [
+		new MenuItem('Назад',	'arrow_left', function () {history.back();}),
+		new MenuItem('!Вперед',	'arrow_right', function () {history.forward();}),
+		new MenuItem('Обновить','arrow_refresh', function () {location.href=location.href;})
+	]; */
+	/* var asda = [
+		['Назад',	'arrow_left', function () {history.back();}],
+		['!Вперед',	'arrow_right', function () {history.forward();}],
+		['Обновить','arrow_refresh', function () {location.href=location.href;}]
+	]; */
+	var asda = [
+		['Back',	'arrow_left', function () {
+			history.back();
+		}],
+		['Forward',	'arrow_right', function () {
+			history.forward();
+		}],
+		['Reload page', 'arrow_refresh', function () {
+			location.href = location.href;
+		}],
+		'-',
+		['Restore closed tab', 'tab', def_act],
+		['Add page to bookmarks', 'folder_heart', def_act],
+		['Save as...', 'disk', def_act],
+		['Send link', 'link', def_act],
+		'-',
+		['!Open background image', 'image', def_act],// ! — disabled=true
+		['Select all', 'shading', def_act],
+		['Copy', 'page_white_copy', def_act],
+		['Paste', 'page_white_paste', def_act],
+		'-',
+		['Inspect element', 'bug'],
+		['Select encoding', '', false, function (z) {
+			z.a = [];
+			var x = 'utf-8,utf8-y,utf-16,utf-16le,utf-16be,koi8-r,koi8-u,windows-1251'.split(',');
+			for (var i in x) {
+				z.a.push(new MenuItem(x[i]));
+			}
+			z.type = 'radio';
+			z.set = function (i) {
+				asdasdasd = i;
+			};
+			z.get = function () {
+				return typeof asdasdasd === 'string'?asdasdasd:'koi8-r';
+			};
+			return true;
+		}]
+	];
+	
+	var table_common = function (item) {
+		//console.log(item);return;
+		//location.href = '/db/' + parent.p[parent.p.length-1].cmenu_item.caption + '/' + x.caption;
+		location.href = '/db/' + item.parent.caption + '/' + item.caption;
+	};
+	
+	var table_menu = $.cmenu.get_menu(
+		[
+			[
+				'data',
+				'table',
+				function (mi) {
+					location.href = '/db/' + mi.parent.parent.caption + '/' +
+					mi.parent.caption + '/data';
+				}
+			],
+			['!indexes'],
+			['!triggers'],
+			['!constraints']
+		]
+	);
+	
+	$('.firefoxmenu').bindMenu(asda);
+	
+	var cb2 = function (menu) {
+		menu.async = true;
+		if (menu.a) {
+			return menu.a;
+		}
+		var table = menu.parent_item.caption;
+		$.getJSON('/db/' + table + '.json', function (r) {
+			menu.a = [];
+			for (var i in r.tables) {
+				if (r.tables[i]) {
+					menu.a.push([r.tables[i], 'database_table', table_common, table_menu]);
+				}
+			}
+			menu.done();
+		});
+	};
+	
+	var cb = function (menu) {
+		menu.async = true;
+		if (menu.a) {
+			return menu.a;
+		}
+		$.getJSON('/db.json', function (r) {
+			menu.a = [];
+			for (var i in r.databases) {
+				if (r.databases[i]) {
+					menu.a.push([r.databases[i], 'database', def_act, cb2]);
+				}
+			}
+			menu.done();
+		});
+	};
+	
+	//$('.firefoxmenu').bindMenu(cb);
+	
+	// my simple syntax hl
+	$('#code pre').syntax();
+
+});
+</script>
+</head>
+<body>
+
+<span id="lt" class="firefoxmenu">Click for FF3 menu</span>
+<span id="rt" class="firefoxmenu">Click for FF3 menu</span>
+<span id="lb" class="firefoxmenu">Click for FF3 menu</span>
+<span id="rb" class="firefoxmenu">Click for FF3 menu</span>
+<div id="code"><pre>var asda = [
+	['Back',	'arrow_left', function () {
+		history.back();
+	}],
+	['Forward',	'arrow_right', function () {
+		history.forward();
+	}],
+	['Reload page', 'arrow_refresh', function () {
+		location.href = location.href;
+	}],
+	'-',
+	['Restore closed tab', 'tab', def_act],
+	['Add page to bookmarks', 'folder_heart', def_act],
+	['Save as...', 'disk', def_act],
+	['Send link', 'link', def_act],
+	'-',
+	['!Open background image', 'image', def_act],// ! — disabled=true
+	['Select all', 'shading', def_act],
+	['Copy', 'page_white_copy', def_act],
+	['Paste', 'page_white_paste', def_act],
+	'-',
+	['Inspect element', 'bug'],
+	['Select encoding', '', false, function (z) {
+		z.a = [];
+		var x = 'utf-8,utf8-y,utf-16,utf-16le,utf-16be,koi8-r,koi8-u,windows-1251'.split(',');
+		for (var i in x) {
+			z.a.push(new MenuItem(x[i]));
+		}
+		z.type = 'radio';
+		z.set = function (i) {
+			asdasdasd = i;
+		};
+		z.get = function () {
+			return typeof asdasdasd === 'string'?asdasdasd:'koi8-r';
+		};
+		return true;
+	}]
+];
+
+$('.firefoxmenu').bindMenu(asda);
+
+
+</pre>
+</div>
+<a href="1602.cmenu.js" style="position:absolute; left:200px;">Скачать библиотеку 1602.cmenu.js</a>
+</body>
+</html>
