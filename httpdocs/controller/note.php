@@ -5,7 +5,7 @@ class note_ctl extends crud_ctl {
 	var $table = 'note';
 	var $entity_name = 'note';
 	
-	function index() {
+	function index($bind_as = 'index') {
 		$sql = '
 			SELECT *
 			FROM note
@@ -13,9 +13,22 @@ class note_ctl extends crud_ctl {
 			ORDER BY id DESC
 			LIMIT 20
 		';
-		$this->tpl->add('index', db_fetch_all($sql));
+		$this->tpl->add($bind_as, db_fetch_all($sql));
 	}
 	
+	function create() {
+		if ($_POST) {
+			$_POST['user_id'] = $this->user->id;
+			$id = db_insert($this->table, $_POST);
+			if ($id) {
+				$this->index('notes');
+				$response->html = $this->tpl->fetch('in.notes_list.tpl');
+				die(php2js($response));
+			} else {
+				die('{error: 1}');
+			}
+		}
+	}
 }
 
 
