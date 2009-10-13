@@ -66,7 +66,7 @@
 		
 		$r = db_fetch_all($sql, $assoc);
 		
-		return @$r[0];
+		return isset($r[0]) ? $r[0] : false;
 	}
 	
 	function db_fetch_value($sql, $field_name = false) {
@@ -191,6 +191,23 @@
 		$desc = db_desc($table);
 		if (!$desc->pk || !$pk) trigger_error('Primary key required for db_delete (table ' . $table . ')');
 		return db_execute('DELETE FROM ' . db_escape($table) . ' WHERE ' . $desc->pk . ' = ' . (int)$pk);
+	}
+	
+	function db_object_exists($table, $columns = null) {
+		if (db_fetch_one('SHOW TABLES LIKE "' . $table . '"')) {
+			if (!$columns) {
+				return true;
+			} else {
+				$desc = db_desc($table);
+				if (is_string($columns)) {
+					return isset($desc->col_names[$columns]);
+				} else {
+					return count(array_intersect($desc->col_names, $columns)) == count(array_unique($columns));
+				}
+			}
+		} else {
+			return false;
+		}
 	}
 	
 	mysql_connect($config->db_server, $config->db_user, $config->db_password) or die('Can not connect');
