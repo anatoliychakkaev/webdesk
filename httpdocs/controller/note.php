@@ -7,9 +7,9 @@ class note_ctl extends crud_ctl {
 	
 	function index($bind_as = 'index') {
 		$sql = '
-			SELECT *
-			FROM note
-			WHERE user_id = ' . (int)$this->user->id . '
+			SELECT note.*, user.name as author_name
+			FROM note INNER JOIN user ON user.id = note.user_id
+			' . ($this->user ? 'WHERE user_id = ' . (int)$this->user->id : '') . '
 			ORDER BY id DESC
 			LIMIT 20
 		';

@@ -25,11 +25,15 @@
 		// create user by key
 		$path_prefix .= $path[0] . '/';
 		$user = new user(substr(array_shift($path), 1));
-	} else {
+	} elseif(isset($_SESSION['user_id'])) {
 		// find another way to init user
-		$user = new user(4);
+		$user = new user($_SESSION['user_id']);
+	} else {
+		$user = false;
 	}
-		
+	
+	$tpl->add('user', $user);
+	
 	// define controllers
 	$path_offset = 0;
 	$parent_ctl = null;
@@ -194,7 +198,6 @@
 	$tpl->add('path_prefix', $path_prefix);
 	$tpl->add('pp', $path_prefix);
 	
-	// output to browser
 	$tpl->display();
 
 ?>

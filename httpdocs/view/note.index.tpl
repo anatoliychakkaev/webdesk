@@ -3,6 +3,13 @@
 
 <style>
 {literal}
+#preview {
+	border: 2px dotted #CCCCCC;
+	padding: 10px;
+	width: 300px;
+	float: left;
+	height: 150px;
+}
 .preview {
 	padding: 10px;
 }
@@ -24,8 +31,9 @@
 	padding: 10px;
 }
 
-.quick_post_box textarea, .quick_post_box #preview {
-	width: 400px;
+.quick_post_box textarea {
+	border: 1px solid #999999;
+	width: 450px;
 	height: 150px;
 	float: left;
 }
@@ -62,14 +70,20 @@ $().ready(function () {
 {/literal}
 </script>
 
+{if $user}
+
 <div class="quick_post_box">
 	<form action="{$pp}create" method="POST" id="quick_post_form">
-		<textarea name="note"></textarea>
-		<div id="preview"></div>
+		<script src="/scripts/wmd/wmd.js"></script>
+		<textarea></textarea>
+		<textarea name="note" class="wmd-output" style="display: none;"></textarea>
+		<div id="preview" class="wmd-preview"></div>
 		<div class="clear"></div>
 		<input type="submit" value="Добавить запись" />
 	</form>
 </div>
+
+{/if}
 
 <div id="notes_list">
 {include file=in.notes_list.tpl notes=$index}
