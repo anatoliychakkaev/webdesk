@@ -1,15 +1,28 @@
 <?php
+
+class database {
 	
-	function db_query($sql) {
-		$q = mysql_query($sql);
-		if(!$q) db_error($sql);
+	var $_connection;
+	
+	function connect($server, $database_name, $user, $password) {
+		$this->_connection = mysql_connect($server, $user, $password)
+			or trigger_error('Cannot connect');
+		mysql_select_db($database_name)
+			or trigger_error('Cannot select database');
+		
+		return $this->_connection;
+	}
+	
+	function query($sql) {
+		$q = mysql_query($sql, $this->_connection);
+		if(!$q) $this->error($sql);
 		return $q;
 	}
 	
-	function db_execute($sql) {
-		$q = mysql_query($sql);
+	function execute($sql) {
+		$q = mysql_query($sql, $this->_connection);
 		if (!$q) {
-			db_error($sql);
+			$this->error($sql);
 		}
 		if (is_resource($q)) {
 			mysql_free_result($q);
@@ -17,7 +30,7 @@
 		return true;
 	}
 	
-	function db_error($sql) {
+	function error($sql) {
 		global $format;
 		
 		$message = '';
@@ -41,11 +54,10 @@
 		die($message);
 	}
 	
-	function db_fetch_all($sql, $assoc = false) {
-		
+	function fetch_all($sql, $assoc = false) {
 		$fetcher = $assoc?'mysql_fetch_assoc':'mysql_fetch_object';
 		
-		$q = db_query($sql);
+		$q = $this->query($sql);
 		
 		$t = array();
 		while ($r = $fetcher($q)) {
@@ -57,21 +69,22 @@
 		return $t;
 	}
 	
-	function db_select($table, $key) { //todo: unhardcode id
-		
-		return db_fetch_one('SELECT * FROM ' . $table . ' WHERE id = ' . (int)$key);
+	function select($table, $key, $primary_key_name = 'id') {
+		return $this->fetch_one('
+			SELECT *
+			FROM `' . $this->escape($table) . '`
+			WHERE `' . $this->escape($primary_key_name) . '` = ' . (int)$key . '
+			LIMIT 1
+		');
 	}
 	
-	function db_fetch_one($sql, $assoc = false) {
-		
-		$r = db_fetch_all($sql, $assoc);
-		
+	function fetch_one($sql, $assoc = false) {
+		$r = $this->fetch_all($sql, $assoc);
 		return isset($r[0]) ? $r[0] : false;
 	}
 	
-	function db_fetch_value($sql, $field_name = false) {
-		
-		$r = db_fetch_one($sql, $field_name?false:true);
+	function fetch_value($sql, $field_name = false) {
+		$r = $this->fetch_one($sql, $field_name?false:true);
 		if (is_null($r)) {
 			return null;
 		}
@@ -83,9 +96,8 @@
 		}
 	}
 	
-	function db_fetch_array($sql, $value = false, $key = false) {
-		
-		$r = db_fetch_all($sql, $value?false:true);
+	function fetch_array($sql, $value = false, $key = false) {
+		$r = $this->fetch_all($sql, $value?false:true);
 		$s = array();
 		foreach ($r as $row) {
 			
@@ -110,12 +122,12 @@
 		return $s;
 	}
 	
-	function db_escape($string) {
+	function escape($string) {
 		return mysql_real_escape_string($string);
 	}
 	
-	function db_desc($table) {
-		$qr = mysql_query('DESC ' . db_escape($table));
+	function desc($table) {
+		$qr = mysql_query('DESC ' . $this->escape($table), $this->_connection);
 		$cols_full = new stdClass();
 		$cols_names = array();
 		$pri = false;
@@ -134,71 +146,85 @@
 		return $table;
 	}
 	
-	function db_date($timestamp = null) {
+	function date($timestamp = null) {
 		if (!$timestamp) {
 			$timestamp = time();
 		}
 		return date('Y-m-d H:i:s', $timestamp);
 	}
 	
-	function db_insert($table, $data) {
-		$desc = db_desc($table);
-		if (!$desc->pk) trigger_error('Primary key required for db_insert (table ' . $table . ')');
+	function insert($table, $data) {
+		$desc = $this->desc($table);
+		if (!$desc->pk) trigger_error('Primary key required for $this->insert (table ' . $table . ')');
 		if (is_object($data)) $data = get_object_vars($data);
 		if (!is_array($data)) trigger_error('Array or object required as second parameter');
 		$columns = array();
 		$values = array();
-		$data['date_created'] = db_date();
+		$data['created_at'] = $this->date();
 		foreach ($data as $column => $value) {
 			if (!in_array($column, $desc->col_names)) continue;
-			$columns[] = db_escape($column);
-			$value = db_escape($value);
+			$columns[] = $this->escape($column);
+			$value = $this->escape($value);
 			if (!is_numeric($value)) $value = '"' . $value . '"';
 			$values[] = $value;
 		}
 		if (!count($columns)) trigger_error('No matched columns');
 		
-		$sql = 'INSERT INTO ' . db_escape($table) . ' 
+		$sql = 'INSERT INTO ' . $this->escape($table) . ' 
 		(' . join(', ', $columns) . ') 
 		VALUES (' . join(', ', $values) . ')';
-		$x = mysql_query($sql);
+		$x = mysql_query($sql, $this->_connection);
 		
 		return $x?mysql_insert_id():false;
 	}
 	
-	function db_update($table, $pk, $data) {
-		$desc = db_desc($table);
-		if (!$desc->pk || !$pk) trigger_error('Primary key required for db_update (table ' . $table . ')');
-		if (is_object($data)) $data = get_object_vars($data);
-		if (!is_array($data)) trigger_error('Array or object required as second parameter');
-		$data['date_modified'] = db_date();
+	function update($table, $pk, $data) {
+		$desc = $this->desc($table);
+		if (!$desc->pk || !$pk) {
+			trigger_error('Primary key required for $this->update (table ' . $table . ')');
+		}
+		if (is_object($data)) {
+			$data = get_object_vars($data);
+		}
+		if (!is_array($data)) {
+			trigger_error('Array or object required as second parameter');
+		}
+		$data['updated_at'] = $this->date();
 		$update_columns = array();
 		foreach ($data as $column => $value) {
-			if (!in_array($column, $desc->col_names) || $column === $desc->pk) continue;
-			$value = db_escape($value);
-			if (!is_numeric($value)) $value = '"' . $value . '"';
-			$update_columns[] = '`' . db_escape($column) . '` = ' . $value;
+			if (!in_array($column, $desc->col_names) || $column === $desc->pk) {
+				continue;
+			}
+			$value = $this->escape($value);
+			if (!is_numeric($value)) {
+				$value = '"' . $value . '"';
+			}
+			$update_columns[] = '`' . $this->escape($column) . '` = ' . $value;
 		}
-		if (!count($update_columns)) trigger_error('No matched columns');
+		if (!count($update_columns)) {
+			trigger_error('No matched columns');
+		}
 		
-		$sql = 'UPDATE ' . db_escape($table) . 
+		$sql = 'UPDATE ' . $this->escape($table) . 
 		' SET ' . join($update_columns, ',') . 
 		' WHERE `' . $desc->pk  . '` = ' . (int)$pk;
-		return mysql_query($sql);
+		return mysql_query($sql, $this->_connection);
 	}
 	
-	function db_delete($table, $pk) {
-		$desc = db_desc($table);
-		if (!$desc->pk || !$pk) trigger_error('Primary key required for db_delete (table ' . $table . ')');
-		return db_execute('DELETE FROM ' . db_escape($table) . ' WHERE ' . $desc->pk . ' = ' . (int)$pk);
+	function delete($table, $pk) {
+		$desc = $this->desc($table);
+		if (!$desc->pk || !$pk) {
+			trigger_error('Primary key required for $this->delete (table ' . $table . ')');
+		}
+		return $this->execute('DELETE FROM ' . $this->escape($table) . ' WHERE ' . $desc->pk . ' = ' . (int)$pk);
 	}
 	
-	function db_object_exists($table, $columns = null) {
-		if (db_fetch_one('SHOW TABLES LIKE "' . $table . '"')) {
+	function object_exists($table, $columns = null) {
+		if ($this->fetch_one('SHOW TABLES LIKE "' . $table . '"')) {
 			if (!$columns) {
 				return true;
 			} else {
-				$desc = db_desc($table);
+				$desc = $this->desc($table);
 				if (is_string($columns)) {
 					return isset($desc->col_names[$columns]);
 				} else {
@@ -210,8 +236,51 @@
 		}
 	}
 	
-	mysql_connect($config->db_server, $config->db_user, $config->db_password) or die('Can not connect');
-	
-	if(isset($config->db_name) && $config->db_name) mysql_select_db($config->db_name)  or die('Can not select database');
-	
+}
+
+$db = new database();
+$db->connect($config->db_server, $config->db_name, $config->db_user, $config->db_password);
+
+/* global aliases */
+
+function db_desc($table) {
+	return $GLOBALS['db']->desc($table);
+}
+
+function db_fetch_all($sql, $assoc = false) {
+	return $GLOBALS['db']->fetch_all($sql, $assoc);
+}
+
+function db_fetch_one($sql, $assoc = false) {
+	return $GLOBALS['db']->fetch_one($sql, $assoc);
+}
+
+function db_fetch_array($sql, $value, $key) {
+	return $GLOBALS['db']->fetch_array($sql, $value, $key);
+}
+
+function db_fetch_value($sql, $field_name = false) {
+	return $GLOBALS['db']->fetch_value($sql, $field_name);
+}
+
+function db_select($table, $key, $primary_key_name = 'id') {
+	return $GLOBALS['db']->select($table, $key, $primary_key_name);
+}
+
+function db_insert($table, $data) {
+	return $GLOBALS['db']->insert($table, $data);
+}
+
+function db_update($table, $pk, $data) {
+	return $GLOBALS['db']->update($table, $pk, $data);
+}
+
+function db_delete($table, $pk) {
+	return $GLOBALS['db']->delete($table, $pk);
+}
+
+function db_escape($string) {
+	return $GLOBALS['db']->escape($string);
+}
+
 ?>

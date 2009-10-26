@@ -75,7 +75,14 @@ class crud_ctl extends std_ctl {
 	**/
 	function __init() {
 		
-		if (!$this->table) trigger_error('crud controller requires $table field');
+		if (!$this->table) {
+			trigger_error('crud controller requires $table field');
+		}
+		
+		//if (file_exists('model/
+		
+		require_once 'model/orm.inc';
+		$this->entity = new universal_entity($this->table);
 		
 		$this->table_info = db_desc($this->table);
 		if (!$this->table_info) trigger_error('Table ' . $this->table . ' not found');
@@ -84,6 +91,7 @@ class crud_ctl extends std_ctl {
 		
 		if ($this->entity_id) {
 			$this->primary_key = $this->entity_id;
+			$this->entity->load($this->entity_id);
 			if (!$this->screen) {
 				$this->screen = 'view';
 			}
@@ -141,7 +149,8 @@ class crud_ctl extends std_ctl {
 			if ($this->parent_ctl && $this->parent_ctl->entity_name && $this->parent_ctl->entity_id) {
 				$_POST[$this->parent_ctl->entity_name . '_id'] = $this->parent_ctl->entity_id;
 			}
-			$id = db_insert($this->table, $_POST);
+			//$id = db_insert($this->table, $_POST);
+			$id = $this->entity->create($_POST);
 			$this->_relative_redirect($id . '/view' . ($this->format ? '.' . $this->format : ''));
 		} else {
 			
@@ -164,7 +173,8 @@ class crud_ctl extends std_ctl {
 	function edit() {
 		
 		if ($_POST) {
-			db_update($this->table, $this->primary_key, $_POST);
+			//db_update($this->table, $this->primary_key, $_POST);
+			$this->entity->update($_POST);
 			$this->_relative_redirect('view');
 		}
 		
@@ -176,7 +186,8 @@ class crud_ctl extends std_ctl {
 	**/
 	function remove() {
 		if ($_POST) {
-			db_delete($this->table, $this->primary_key);
+			//db_delete($this->table, $this->primary_key);
+			$this->entity->delete();
 			$this->_relative_redirect('..');
 		}
 	}

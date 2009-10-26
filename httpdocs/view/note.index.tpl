@@ -7,7 +7,6 @@
 	border: 2px dotted #CCCCCC;
 	padding: 10px;
 	width: 300px;
-	float: left;
 	height: 150px;
 }
 .preview {
@@ -74,10 +73,7 @@ $().ready(function () {
 
 <div class="quick_post_box">
 	<form action="{$pp}create" method="POST" id="quick_post_form">
-		<script src="/scripts/wmd/wmd.js"></script>
-		<textarea></textarea>
-		<textarea name="note" class="wmd-output" style="display: none;"></textarea>
-		<div id="preview" class="wmd-preview"></div>
+		<textarea name="note"></textarea>
 		<div class="clear"></div>
 		<input type="submit" value="Добавить запись" />
 	</form>
