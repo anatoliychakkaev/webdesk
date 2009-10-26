@@ -3,7 +3,7 @@
 	<div class="topic">
 		<div class="preview">
 			
-			{$note->note|nl2br|truncate:300:'...'}
+			{$note->note|nl2br}
 		</div>
 		<div class="options">
 			Запись создана <strong>{$note->created_at|timeago}</strong>, автор <strong>{$note->author_name}</strong> |

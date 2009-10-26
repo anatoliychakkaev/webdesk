@@ -49,9 +49,13 @@ class db_entity {
 			}
 			return $this->_attr($name, $arguments[0]);
 		}
+		return true;
 	}
 	
 	function load($id){
+		if (!$GLOBALS['db']->object_exists($this->table)) {
+			trigger_error('Table ' . $this->table . ' not exists');
+		}
 		$data = db_fetch_one('
 			SELECT *
 			FROM `' . $this->table . '`
@@ -59,6 +63,11 @@ class db_entity {
 			LIMIT 1
 		', true);
 		$this->_attr($data);
+		$this->_loaded = true;
+	}
+	
+	function is_loaded() {
+		return !empty($this->_loaded);
 	}
 	
 	function create($data) {
@@ -105,6 +114,10 @@ class db_entity {
 			return $has_attribute;
 		}
 		trigger_error('Not implemented yet');
+	}
+	
+	function has_value($attr) {
+		return !empty($this->attributes[$attr]);
 	}
 	
 	function _attr($data_or_name = false, $value = '') {
@@ -160,6 +173,42 @@ class db_entity {
 			trigger_error('Unsupported count of arguments');
 			break;
 		}
+	}
+	
+	function as_object() {
+		return $this->_attr(true);
+	}
+	
+	function as_array() {
+		return $this->_attr();
+	}
+	
+	function desc() {
+		$this->table_info = db_desc($this->table);
+		$cols = $this->table_info->columns;
+		foreach ($cols as $key => $value) {
+			if (preg_match('/(varchar|[a-z]*int)\\((\\d+)\\)/i', $cols->{$key}['Type'], $typedef)) {
+				$cols->{$key}['Size'] = $typedef[2];
+				if ($typedef[1] == 'varchar' && $typedef[2] > 255) {
+					$cols->{$key}['EffectiveType'] = 'text';
+				} else {
+					$cols->{$key}['EffectiveType'] = $typedef[1];
+				}
+			} else {
+				$cols->{$key}['EffectiveType'] = $cols->{$key}['Type'];
+			}
+		}
+		
+		if ($this->has_value($this->primary_key)) {
+			
+			$d = $this->as_array();
+			foreach ($d as $key => $value) {
+				$cols->{$key}['Value'] = $value;
+			}
+		}
+		
+		$this->table_info->columns = $cols;
+		return $this->table_info;
 	}
 	
 }

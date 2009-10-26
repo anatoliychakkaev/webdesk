@@ -63,6 +63,7 @@ function smarty_modifier_timeago($datetime) {
 		}
 		return $h . ' ' . $word['h'][1] . ' назад';
 	}
+	
 	setlocale(LC_ALL, 'ru_RU.utf8');
 	return strftime('%e %b %Y %H:%M', $timestamp);
 }

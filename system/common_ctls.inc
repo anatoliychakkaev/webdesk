@@ -84,49 +84,18 @@ class crud_ctl extends std_ctl {
 		require_once 'model/orm.inc';
 		$this->entity = new universal_entity($this->table);
 		
-		$this->table_info = db_desc($this->table);
-		if (!$this->table_info) trigger_error('Table ' . $this->table . ' not found');
-		
-		$this->tpl->add('table_info', $this->table_info);
-		
 		if ($this->entity_id) {
 			$this->primary_key = $this->entity_id;
 			$this->entity->load($this->entity_id);
-			if (!$this->screen) {
-				$this->screen = 'view';
-			}
-		} else {
-			if (!$this->screen) {
-				$this->screen = 'index';
-			}
+			$this->tpl->add($this->entity_name, $this->entity->as_object());
 		}
 		
-		$this->tpl->add('pk', $this->primary_key);
-		
-		$cols = $this->table_info->columns;
-		foreach ($cols as $key => $value) {
-			if (preg_match('/(varchar|[a-z]*int)\\((\\d+)\\)/i', $cols->{$key}['Type'], $typedef)) {
-				$cols->{$key}['Size'] = $typedef[2];
-				if ($typedef[1] == 'varchar' && $typedef[2] > 255) {
-					$cols->{$key}['EffectiveType'] = 'text';
-				} else {
-					$cols->{$key}['EffectiveType'] = $typedef[1];
-				}
-			} else {
-				$cols->{$key}['EffectiveType'] = $cols->{$key}['Type'];
-			}
+		if (!$this->screen) {
+			$this->screen = $this->entity_id ? 'view' : 'index';
 		}
 		
-		if ($this->primary_key) {
-			$this->data = db_select($this->table, $this->primary_key);
-			$this->tpl->add($this->entity_name, $this->data);
-			$d = get_object_vars($this->data);
-			foreach ($d as $key => $value) {
-				$cols->{$key}['Value'] = $value;
-			}
-		}
-		
-		$this->table_info->columns = $cols;
+		$this->tpl->add('table_info', $this->entity->desc());
+		$this->tpl->add('pk', $this->entity_id);
 		
 		$view_name = $this->view_prefix . $this->table . '.' . $this->screen;
 		if ($this->tpl->view_defined($view_name)) {
