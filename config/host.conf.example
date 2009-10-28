@@ -1,0 +1,12 @@
+<VirtualHost *:80>
+    ServerName		webdesk.homelinux.org
+    ServerAlias		web
+    DocumentRoot	/var/www/webdesk/httpdocs
+	ErrorLog		/var/www/webdesk/error.log
+    <Directory /var/www/webdesk/httpdocs>
+        php_value   display_errors          1
+        php_value   auto_prepend_file       "/var/www/webdesk/config/config.dev.inc"
+        php_value   include_path            ".:/var/www/webdesk/system:/var/www/webdesk/httpdocs/model"
+    </Directory>
+</VirtualHost>
+
