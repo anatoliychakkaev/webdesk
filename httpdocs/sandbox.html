@@ -1,0 +1,88 @@
+<!DOCTYPE html5>
+<html>
+<head>
+<script type="text/javascript" language='javascript' src='/scripts/jquery-1.2.6.min.js'></script>
+<script>
+
+(function($){
+	var inputPoller = function (element, callback, poll_interval) {
+		var poll_object = this;
+		var prev_sel_start;
+		var prev_sel_end;
+		var prev_element_value, timer;
+		this.tick = function () {
+			if (!element || !element.parentNode ) {
+				return false;
+			}
+			if (element.selectionStart || element.selectionStart == 0) {
+				var sel_start = element.selectionStart;
+				var sel_end = element.selectionEnd;
+				if (sel_start != prev_sel_start || sel_end != prev_sel_end) {
+					prev_sel_start = sel_start;
+					prev_sel_end = sel_end;
+					if (prev_element_value != element.value) {
+						prev_element_value = element.value;
+						return true;
+					}
+				}
+			}
+			return false;
+		};
+		var poller = function () {
+			// do we really need this optimization?
+			//if (_6.getStyle(element,"display") == "none") {
+			//	return;
+			//}
+			if (poll_object.tick()) {
+				callback();
+			}
+		};
+		this.destroy = function () {
+			clearInterval(timer);
+		};
+		if (poll_interval == undefined) {
+			poll_interval = 500;
+		}
+		timer = setInterval(poller, poll_interval);
+	};
+	$.fn.smart_change = function (f) {
+		var el = this[0];
+		if (el.attachEvent) {
+			el.attachEvent('oninput', f);
+		} else {
+			el.addEventListener('input', f, false);
+		}
+		el.onpaste = f;
+		el.ondrop = f;
+		$(window).keypress(f);
+		this.keypress(f);
+		this.keydown(f);
+		poller = new inputPoller(el, f);
+	};
+})(jQuery);
+
+// for using plugin
+
+$(document).ready(function () {
+
+	var $msg = $('span#msg');
+
+	var x = $('#text_input');
+	x.smart_change(function() {
+		$msg.text(x[0].value.length);
+	});
+
+});
+
+</script>
+
+</head>
+<body>
+
+<span id="msg"></span><br/><br/>
+
+<input type="text" id="text_input" />
+
+</body>
+
+</html>

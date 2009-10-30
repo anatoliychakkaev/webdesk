@@ -35,20 +35,20 @@ _c.maxWidth=_c.maxHeight="90000px";
 return _b;
 };
 _6.getStyle=function(_d,_e){
-var _f=function(_10){
-return _10.replace(/-(\S)/g,function(_11,_12){
-return _12.toUpperCase();
-});
-};
-if(_d.currentStyle){
-_e=_f(_e);
-return _d.currentStyle[_e];
-}else{
-if(_1.getComputedStyle){
-return _3.defaultView.getComputedStyle(_d,null).getPropertyValue(_e);
-}
-}
-return "";
+	var _f = function (_10) {
+		return _10.replace(/-(\S)/g,function(_11,_12){
+			return _12.toUpperCase();
+		});
+	};
+	if(_d.currentStyle){
+		_e=_f(_e);
+		return _d.currentStyle[_e];
+	}else{
+		if(_1.getComputedStyle){
+			return _3.defaultView.getComputedStyle(_d,null).getPropertyValue(_e);
+		}
+	}
+	return "";
 };
 _6.getElementsByClass=function(_13,_14,_15){
 var _16=[];
@@ -95,13 +95,13 @@ _6.stringToRegex=function(_25){
 return new _4(_25.expression,_25.flags);
 };
 _6.elementOk=function(_26){
-if(!_26||!_26.parentNode){
-return false;
-}
-if(_6.getStyle(_26,"display")=="none"){
-return false;
-}
-return true;
+	if (!_26||!_26.parentNode) {
+		return false;
+	}
+	if (_6.getStyle(_26,"display")=="none"){
+		return false;
+	}
+	return true;
 };
 _6.skin=function(_27,_28,_29,_2a){
 var _2b;
@@ -549,47 +549,45 @@ return _3.body.clientHeight;
 }
 }
 };
-_2.inputPoller=function(_88,_89,_8a){
-var _8b=this;
-var _8c;
-var _8d;
-var _8e,_8f;
-this.tick=function(){
-if(!_6.elementOk(_88)){
-return;
-}
-if(_88.selectionStart||_88.selectionStart==0){
-var _90=_88.selectionStart;
-var _91=_88.selectionEnd;
-if(_90!=_8c||_91!=_8d){
-_8c=_90;
-_8d=_91;
-if(_8e!=_88.value){
-_8e=_88.value;
-return true;
-}
-}
-}
-return false;
-};
-var _92=function(){
-if(_6.getStyle(_88,"display")=="none"){
-return;
-}
-if(_8b.tick()){
-_89();
-}
-};
-var _93=function(){
-if(_8a==undefined){
-_8a=500;
-}
-_8f=_1.setInterval(_92,_8a);
-};
-this.destroy=function(){
-_1.clearInterval(_8f);
-};
-_93();
+_2.inputPoller = function (element, callback, poll_interval) {
+	var poll_object = this;
+	var prev_sel_start;
+	var prev_sel_end;
+	var prev_element_value, timer;
+	this.tick = function () {
+		if (!element || !element.parentNode ) {
+			return false;
+		}
+		if (element.selectionStart || element.selectionStart == 0) {
+			var sel_start = element.selectionStart;
+			var sel_end = element.selectionEnd;
+			if (sel_start != prev_sel_start || sel_end != prev_sel_end) {
+				prev_sel_start = sel_start;
+				prev_sel_end = sel_end;
+				if (prev_element_value != element.value) {
+					prev_element_value = element.value;
+					return true;
+				}
+			}
+		}
+		return false;
+	};
+	var poller = function () {
+		// do we really need this optimization?
+		//if (_6.getStyle(element,"display") == "none") {
+		//	return;
+		//}
+		if (poll_object.tick()) {
+			callback();
+		}
+	};
+	this.destroy = function () {
+		clearInterval(timer);
+	};
+	if (poll_interval == undefined) {
+		poll_interval = 500;
+	}
+	timer = setInterval(poller, poll_interval);
 };
 _2.undoManager=function(_94,_95){
 var _96=this;
@@ -1630,34 +1628,34 @@ var _168=_1.setInterval(_165,100);
 };
 _2.previewManager=function(_169){
 var _16a=this;
-var _16b,_16c;
+var _16b,poller;
 var _16d,_16e;
 var _16f,_170;
 var _171=3000;
 var _172="delayed";
-var _173=function(_174,_175){
-_6.addEvent(_174,"input",_175);
-_174.onpaste=_175;
-_174.ondrop=_175;
-_6.addEvent(_1,"keypress",_175);
-_6.addEvent(_174,"keypress",_175);
-_6.addEvent(_174,"keydown",_175);
-_16c=new _2.inputPoller(_174,_175);
+var smart_change = function(element, callback){
+	_6.addEvent(element, "input", callback);
+	element.onpaste = callback;
+	element.ondrop = callback;
+	_6.addEvent(_1, "keypress", callback);
+	_6.addEvent(element, "keypress", callback);
+	_6.addEvent(element, "keydown", callback);
+	poller=new _2.inputPoller(element, callback);
 };
-var _176=function(){
-var _177=0;
-if(_1.innerHeight){
-_177=_1.pageYOffset;
-}else{
-if(_3.documentElement&&_3.documentElement.scrollTop){
-_177=_3.documentElement.scrollTop;
-}else{
-if(_3.body){
-_177=_3.body.scrollTop;
-}
-}
-}
-return _177;
+var _176 = function () {
+	var _177=0;
+	if(_1.innerHeight){
+		_177=_1.pageYOffset;
+	}else{
+		if(_3.documentElement&&_3.documentElement.scrollTop){
+			_177=_3.documentElement.scrollTop;
+		}else{
+			if(_3.body){
+				_177=_3.body.scrollTop;
+			}
+		}
+	}
+	return _177;
 };
 var _178=function(){
 if(!_169.preview&&!_169.output){
@@ -1727,12 +1725,12 @@ _183(_169.output,_180);
 }
 };
 this.refresh=function(_188){
-if(_188){
-_16f="";
-_178();
-}else{
-_17d();
-}
+	if(_188){
+		_16f="";
+		_178();
+	}else{
+		_17d();
+	}
 };
 this.processingTime=function(){
 return _16e;
@@ -1776,7 +1774,7 @@ _1.scrollBy(0,_18e-_18c);
 }
 };
 var init=function(){
-_173(_169.input,_17d);
+smart_change(_169.input,_17d);
 _178();
 if(_169.preview){
 _169.preview.scrollTop=0;
@@ -1786,8 +1784,8 @@ _169.output.scrollTop=0;
 }
 };
 this.destroy=function(){
-if(_16c){
-_16c.destroy();
+if(poller){
+poller.destroy();
 }
 };
 init();
