@@ -17,6 +17,7 @@ body {
 }
 
 /* required cmenu styles */
+/*
 .cmenu {
 	display:none;
 	position:absolute;
@@ -51,6 +52,75 @@ body {
 	height: 1px;
 	border: 1px solid #999;
 	background: #aaa;
+}
+*/
+/* cmenu ubuntu styles*/
+.cmenu {
+	display:none;
+	position:absolute;
+	cursor: default;
+	background: #302f2c;
+	border: 1px solid #222220;
+	z-index:100;
+	overflow:show;
+}
+
+.cmenu img{
+	vertical-align:middle;
+}
+.cmenuItem{
+	white-space: nowrap;
+	font-size:11px;
+	color: #c2c2b7;
+	height: 20px;
+	margin-top: -1px;
+	margin-left: -1px;
+	border: 1px solid transparent;
+}
+.cmenuItem .cmenuIcon {
+	width: 16px;
+	height: 16px;
+	margin: 0;
+	padding: 2px;
+	float: left;
+}
+
+.cmenuItem .cmenuTitle {
+	float: left;
+	padding: 2px;
+	height: 16px;
+}
+
+.cmenuItem .submenuBullet {
+	width: 16px;
+	height: 16px;
+	padding: 2px;
+	float: right;
+	clear: right;
+}
+
+.cmenuItem .hasSubmenu {
+	background: url(/images/submenu_bullet.png) no-repeat 50% 50%;
+}
+
+.cmenuItem:hover{
+	background: url(/images/menuitem_hover.png) repeat-x;
+	color: #fff;
+	border-color: #5c4842;
+}
+
+.cmenuItemWithSub{
+	background: #336;
+	color: #fff;
+}
+
+.cmenu hr{
+	width: 100%;
+	height: 1px;
+	border-width: 0;
+	background: #3a3a3a;
+	padding-left: 3px;
+	padding-right: 3px;
 }
 
 /* sample */

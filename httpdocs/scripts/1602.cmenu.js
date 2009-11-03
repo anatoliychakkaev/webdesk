@@ -12,13 +12,14 @@
 	cls_item = 'cmenuItem';
 	
 	if (!$.isFunction(window.cm_img)) {
-		window.cm_img = function (img, alt, style) {/* {{{ */
+		window.cm_img = function (img, alt, style, nodefsize) {/* {{{ */
 			if (alt) {
 				alt = alt.replace(/"/, '\"');
 			}
 			return '<img src="images/' + img + 
 				(img.search(/\.(gif|jpg|jpeg)$/i) === -1?'.png':'') +
-				'" width="16" height="16" alt="' +
+				'" ' + (nodefsize ? '' : 'width="16" height="16"')
+				+ ' alt="' +
 				(alt?alt:'img') + '" ' +
 				(alt?'title="' + alt + '"':'') +
 				(style?' style="' + style + '"':'') + ' />';
@@ -233,9 +234,11 @@
 				// Нет подменю
 				' onmouseover="$.cmenu.to=setTimeout(function(){var m = $.cmenu.get_menu(' + menu.id + ');m && m.sub && $.cmenu.hide_menu(m.sub);},300);" onmouseout="clearTimeout($.cmenu.to);" ')
 			) +
-		'>' +
-		cm_img(a.icon?a.icon:'undefined', ' ') + ' ' + caption +
-		(a.submenu?cm_img('page-next.gif', ' ', 'position:absolute;right:0px;vertical-align:middle;'):'') + '</div>';
+		'><div class="cmenuIcon">' +
+		(a.icon ? cm_img(a.icon, ' ') : '') +
+		'</div><div class="cmenuTitle"> ' + caption +
+		'</div><div class="submenuBullet ' + (a.submenu ? 'hasSubmenu' : '') + '">' +
+		'</div></div>';
 		/* }}} */
 	}
 	
