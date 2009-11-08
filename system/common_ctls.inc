@@ -190,4 +190,40 @@ class crud_ctl extends std_ctl {
 	}
 }
 
+class auth_ctl extends std_ctl {
+	
+	function register() {
+		if ($_POST) {
+			if ($this->user->register($_POST)) {
+				$this->login();
+			}
+		}
+		$this->tpl->view('user.register');
+	}
+	
+	function login() {
+		if ($_POST) {
+			$this->user->login($_POST);
+			if ($this->user->logged_in) {
+				$redirect = wd_fetch_var('redirect', '/note');
+				header('Location: ' . $redirect);
+			}
+		}
+		$this->tpl->view('user.login');
+	}
+	
+	function logout() {
+		$this->user->logout();
+		header('Location: /system/login');
+	}
+	
+	function activate() {
+		
+	}
+	
+	function reset_password() {
+		
+	}
+}
+
 ?>
