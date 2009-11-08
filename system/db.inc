@@ -14,12 +14,14 @@ class database {
 	}
 	
 	function query($sql) {
+		lg('\033[1;32mquery: \033[00m' . trim(preg_replace('/\\s+/', ' ', $sql)));
 		$q = mysql_query($sql, $this->_connection);
 		if(!$q) $this->error($sql);
 		return $q;
 	}
 	
 	function execute($sql) {
+		lg('\033[1;34mexecute: \033[00m' . trim(preg_replace('/\\s+/', ' ', $sql)));
 		$q = mysql_query($sql, $this->_connection);
 		if (!$q) {
 			$this->error($sql);
@@ -161,6 +163,9 @@ class database {
 		$columns = array();
 		$values = array();
 		$data['created_at'] = $this->date();
+		if (isset($data[$desc->pk])) {
+			unset($data[$desc->pk]);
+		}
 		foreach ($data as $column => $value) {
 			if (!in_array($column, $desc->col_names)) continue;
 			$columns[] = $this->escape($column);
@@ -208,7 +213,7 @@ class database {
 		$sql = 'UPDATE ' . $this->escape($table) . 
 		' SET ' . join($update_columns, ',') . 
 		' WHERE `' . $desc->pk  . '` = ' . (int)$pk;
-		return mysql_query($sql, $this->_connection);
+		return $this->execute($sql);
 	}
 	
 	function delete($table, $pk) {
@@ -255,7 +260,7 @@ function db_fetch_one($sql, $assoc = false) {
 	return $GLOBALS['db']->fetch_one($sql, $assoc);
 }
 
-function db_fetch_array($sql, $value, $key) {
+function db_fetch_array($sql, $value = false, $key = false) {
 	return $GLOBALS['db']->fetch_array($sql, $value, $key);
 }
 
@@ -281,6 +286,10 @@ function db_delete($table, $pk) {
 
 function db_escape($string) {
 	return $GLOBALS['db']->escape($string);
+}
+
+function db_date($timestamp = null) {
+	return $GLOBALS['db']->date($timestamp);
 }
 
 ?>

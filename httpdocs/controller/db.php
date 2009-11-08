@@ -16,9 +16,7 @@ class db_ctl extends std_ctl { /* {{{ */
 	var $db_name;
 	var $tbl_name;
 	
-	function init() { /* {{{ */
-		
-		$path = $this->path;
+	function __parse_path($path_offset, $path) { /* {{{ */
 		
 		switch (count($path)) {
 		case 1:
@@ -40,6 +38,8 @@ class db_ctl extends std_ctl { /* {{{ */
 			break;
 		}
 		
+		$path_offset += count($path);
+		
 		if ($this->db_name) {
 			$this->tpl->add('database', $this->db_name);
 		}
@@ -48,6 +48,8 @@ class db_ctl extends std_ctl { /* {{{ */
 			$this->tpl->add('table', $this->tbl_name);
 			$this->full_tbl_name = '`' . db_escape($this->db_name) . '`.`' . db_escape($this->tbl_name) . '`';
 		}
+		
+		return join('/', $path);
 		
 		/* }}} */
 	}
