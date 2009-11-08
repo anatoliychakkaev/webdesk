@@ -1,5 +1,3 @@
-{include file=in.header.tpl}
-
 <h2>Index</h2>
 
 <table>
@@ -38,5 +36,3 @@
 <a href="{$pp}create">Create new item</a>
 
 {include file=crud/in.help.tpl}
-
-{include file=in.footer.tpl}

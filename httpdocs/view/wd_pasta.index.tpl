@@ -1,5 +1,3 @@
-{include file=in.header.tpl}
-
 <style>
 {literal}
 .topic {
@@ -14,5 +12,3 @@
 	<br/><a href="{$pp}{$pasta->id}">moar</a>
 </div>
 {/foreach}
-
-{include file=in.footer.tpl}

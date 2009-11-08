@@ -1,5 +1,3 @@
-{include file=in.header.tpl}
-
 <h2>View item</h2>
 
 <a href="{$pp}..">Back to index</a>
@@ -17,5 +15,3 @@
 </form>
 
 {include file=crud/in.help.tpl}
-
-{include file=in.footer.tpl}
