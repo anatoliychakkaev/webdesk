@@ -9,11 +9,24 @@ class note_ctl extends crud_ctl {
 		$sql = '
 			SELECT note.*, user.name as author_name
 			FROM note INNER JOIN user ON user.id = note.user_id
-			' . ($this->user ? 'WHERE user_id = ' . (int)$this->user->id : '') . '
 			ORDER BY id DESC
 			LIMIT 20
 		';
 		$this->tpl->add($bind_as, db_fetch_all($sql));
+	}
+	
+	function my() {
+		if ($this->user->logged_in) {
+			$sql = '
+				SELECT note.*, user.name as author_name
+				FROM note INNER JOIN user ON user.id = note.user_id
+				WHERE user_id = ' . (int)$this->user->id . '
+				ORDER BY id DESC
+				LIMIT 20
+			';
+			$this->tpl->add('index', db_fetch_all($sql));
+		}
+		$this->tpl->view('note.index');
 	}
 	
 	function create() {

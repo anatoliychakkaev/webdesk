@@ -8,6 +8,8 @@ class Template {
 	
 	var $_view = '';
 	
+	var $_layout = 'default';
+	
 	var $smarty = false;
 	
 	function Template() {
@@ -55,6 +57,10 @@ class Template {
 		}
 	}
 	
+	function add_secondary($name, &$value, $type = '') {
+		$this->add($name, $value, $type, false);
+	}
+	
 	function view($view = '') {
 		
 		if ($view) {
@@ -62,6 +68,10 @@ class Template {
 		}
 		return $this->_view;
 		
+	}
+	
+	function layout($layout_name = 'default') {
+		$this->_layout = $layout_name;
 	}
 	
 	function fetch($view) {
@@ -79,7 +89,8 @@ class Template {
 				// use custom smarty template to display variables
 				$this->require_smarty();
 				lg('Display using smarty: ' . $found);
-				$this->smarty->display($found);
+				$this->smarty->assign('body', $found); // TODO: think about namespace
+				$this->smarty->display('layout.' . $this->_layout . '.tpl');
 				return true;
 			} else {
 				lg('View not found in: ' . join(', ', $checked_files));

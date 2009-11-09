@@ -13,6 +13,11 @@ function config($name, $value = null) {
 	}
 }
 
+function config_or_default($name, $default) {
+	global $config;
+	return isset($config->$name) ? $config->$name : $default;
+}
+
 function lg($message, $type = 'message'){
 	$message = str_replace('\'', '\\\'', $message);
 	switch ($type) {
@@ -59,22 +64,29 @@ function error ($message='', $errcode=1) {
 }
 
 /**
-	Function: cm_fetch_var
-		вычисляет значение параметра из
-		POST, если не задано, то из
-		GET, если не задано, то из
-		SESSION, если не задано, то из
-		COOKIE, если не задано, то false
-		
-	Parameters:
-		$name str - название переменной
-*/
-function cm_fetch_var ($name) {/* {{{ */
-	if(isset($_POST[$name]))return $_POST[$name];
-	if(isset($_GET[$name]))return $_GET[$name];
-	if(isset($_SESSION[$name]))return $_SESSION[$name];
-	if(isset($_COOKIE[$name]))return $_COOKIE[$name];
-	return false;
+ *	Function: wd_fetch_var
+ *		вычисляет значение параметра из
+ *		POST, если не задано, то из
+ *		GET, если не задано, то из
+ *		SESSION, если не задано, то из
+ *		COOKIE, если не задано, то false
+ *		
+ *	@param string $name - название переменной
+**/
+function wd_fetch_var($name, $default = false) {/* {{{ */
+	if (isset($_POST[$name])) {
+		return $_POST[$name];
+	}
+	if (isset($_GET[$name])) {
+		return $_GET[$name];
+	}
+	if (isset($_SESSION[$name])) {
+		return $_SESSION[$name];
+	}
+	if (isset($_COOKIE[$name])) {
+		return $_COOKIE[$name];
+	}
+	return $default;
 	/* }}} */
 }
 

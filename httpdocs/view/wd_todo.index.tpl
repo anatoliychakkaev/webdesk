@@ -1,4 +1,3 @@
-{include file=in.header.tpl}
 <style>
 {literal}
 .todo_item {
@@ -108,5 +107,3 @@ function ajax_submit(form) {
 
 {/literal}
 </script>
-
-{include file=in.footer.tpl}

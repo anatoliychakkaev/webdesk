@@ -1,5 +1,3 @@
-{include file=in.header.tpl}
-
 <div>
 	<a href="{$pp}">{$config->db_server}</a> /
 	<a href="{$pp}{$database}">{$database}</a> /
@@ -40,5 +38,3 @@
 <!--pre>
 {$create}
 </pre-->
-
-{include file=in.footer.tpl}

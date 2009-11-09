@@ -1,5 +1,3 @@
-{include file=in.header.tpl}
-
 <style>
 {literal}
 .field {
@@ -27,8 +25,10 @@ input.int {
 }
 
 .submit_field {
+	float:right;
 	clear:both;
-	text-align:center;
+	text-align:left;
+	width:300px;
 	line-height:50px;
 }
 label {
@@ -61,6 +61,6 @@ label {
 	</div>
 </form>
 
-{include file=crud/in.help.tpl}
+<div style="clear: both;"></div>
 
-{include file=in.footer.tpl}
+{include file=crud/in.help.tpl}

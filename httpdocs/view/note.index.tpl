@@ -1,6 +1,3 @@
-
-{include file=in.header.tpl}
-
 <style>
 {literal}
 #preview {
@@ -71,6 +68,9 @@ $().ready(function () {
 
 {if $user}
 
+<a href="{$pp}">all notes</a> | 
+<a href="{$pp}my">my notes</a>
+
 <div class="quick_post_box">
 	<form action="{$pp}create" method="POST" id="quick_post_form">
 		<textarea name="note"></textarea>
@@ -84,5 +84,3 @@ $().ready(function () {
 <div id="notes_list">
 {include file=in.notes_list.tpl notes=$index}
 </div>
-
-{include file=in.footer.tpl}
