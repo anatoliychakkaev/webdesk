@@ -406,7 +406,9 @@
 			// - размеров блока меню (cmenuWidth)
 			// - смещению (off.x) родительского элемента относительно общего offsetParent-а (cmenuOffParent)
 			// - ширине экрана (winWidth)
-			menu.jq.css('left', cmenuOffParent.offsetLeft + off.x + parentNode.offsetWidth + cmenuWidth > winWidth?off.x - cmenuWidth:off.x + parentNode.offsetWidth);
+			menu.jq.css('left',
+				cmenuOffParent.offsetLeft + off.x + parentNode.offsetWidth + cmenuWidth > winWidth ?
+				off.x - cmenuWidth : off.x + parentNode.offsetWidth);
 			// Еще один очень важный момент - в какую сторону показывать меню (по вертикали)
 			// Задача - если есть место чтобы показать снизу от объекта
 			//	- показываем снизу: top = off.y-2
@@ -416,7 +418,9 @@
 			// - размеров блока меню (cmenuHeight)
 			// - смещению (off.y) родительского элемента относительно общего offsetParent-а (cmenuOffParent)
 			// - высоте экрана (winHeight)
-			menu.jq.css('top', cmenuOffParent.offsetTop + off.y + cmenuHeight > winHeight?off.y - cmenuHeight + parentNode.offsetHeight + 4:off.y - 2);
+			menu.jq.css('top',
+				cmenuOffParent.offsetTop + off.y + cmenuHeight > winHeight ?
+				off.y - cmenuHeight + parentNode.offsetHeight + 2 : off.y + 1);
 			// Устанавливаем флаг видимости меню
 			menu.v = true;
 			/* }}} */
