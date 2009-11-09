@@ -4,6 +4,7 @@ class db_entity {
 	
 	var $table = '';
 	var $primary_key = 'id';
+	var $has_many = array(); // field name => entity name
 	
 	var $attributes = array();
 	
@@ -49,6 +50,13 @@ class db_entity {
 			}
 			return $this->_attr($name, $arguments[0]);
 		}
+		// has many
+		/*
+		$intities = pluralize($this->table);
+		if (isset($this->has_many[$intities])) {
+			die('as');
+		}
+		*/
 		return true;
 	}
 	
