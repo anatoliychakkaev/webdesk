@@ -92,6 +92,7 @@
 		$ctl->parent_ctl = $parent_ctl;
 		$ctl->tpl =& $tpl;
 		$ctl->user =& $user;
+		$ctl->format =& $format;
 		
 		$path_prefix .= $controller . '/' . $ctl->__parse_path($path_offset, $path);
 		$ctl->path_prefix =& $path_prefix;

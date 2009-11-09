@@ -113,12 +113,10 @@ class crud_ctl extends std_ctl {
 	 * accept POST, GET
 	**/
 	function create() {
-		
 		if ($_POST) {
 			if ($this->parent_ctl && $this->parent_ctl->entity_name && $this->parent_ctl->entity_id) {
 				$_POST[$this->parent_ctl->entity_name . '_id'] = $this->parent_ctl->entity_id;
 			}
-			//$id = db_insert($this->table, $_POST);
 			$id = $this->entity->create($_POST);
 			$this->_relative_redirect($id . '/view' . ($this->format ? '.' . $this->format : ''));
 		} else {
