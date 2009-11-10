@@ -27,6 +27,9 @@ $config->template_dir	= $config->base_path . '/httpdocs/view';
 require_once	'template.inc';
 $tpl = new Template();
 
+// locale
+setlocale(LC_ALL, 'ru_RU.utf8');
+
 // error handling
 $config->display_errors	= 1;
 $config->log_errors		= 1;
