@@ -102,10 +102,12 @@ class Template {
 		
 	}
 	
-	function view_defined($view = '', &$checked_files) {
+	function view_defined($view = '', &$checked_files = null) {
 		global $format;
 		$v = $view ? $view : $this->_view;
-		
+		if (is_null($checked_files)) {
+			$checked_files = array();
+		}
 		$base_name	= config('template_dir') . '/' . $v;
 		
 		$found = '';

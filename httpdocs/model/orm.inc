@@ -9,7 +9,7 @@ class db_entity {
 	var $attributes = array();
 	
 	function db_entity($initializer = null) {
-		$class_name = get_class();
+		$class_name = get_class($this);
 		if ($class_name === 'db_entity') {
 			trigger_error('Class db_entity is abstract, cannot be instantiated');
 		}
