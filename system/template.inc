@@ -102,7 +102,7 @@ class Template {
 		
 	}
 	
-	function view_defined($view = '', &$checked_files = array()) {
+	function view_defined($view = '', &$checked_files) {
 		global $format;
 		$v = $view ? $view : $this->_view;
 		
