@@ -18,9 +18,9 @@ class outlay_ctl extends crud_ctl {
 			FROM
 				outlay INNER JOIN
 				outlay_category c ON c.id = outlay.outlay_category_id LEFT JOIN
-				user ON user.id = outlay.user_id 
-			ORDER BY outlay.created_at DESC
-			LIMIT 20
+				user ON user.id = outlay.user_id
+			WHERE WEEK(TIMESTAMPADD(DAY, -1, outlay.created_at)) = WEEK(NOW())
+			ORDER BY outlay.created_at ASC
 		';
 		$this->tpl->add('index', db_fetch_all($sql));
 	}
