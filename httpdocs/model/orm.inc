@@ -225,7 +225,7 @@ class universal_entity extends db_entity {
 	
 	function universal_entity($table) {
 		$this->table = $table;
-		parent::__constructor();
+		parent::db_entity();
 	}
 	
 }

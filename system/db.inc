@@ -7,7 +7,7 @@ class database {
 	function connect($server, $database_name, $user, $password) {
 		$this->_connection = mysql_connect($server, $user, $password)
 			or trigger_error('Cannot connect');
-		mysql_select_db($database_name)
+		mysql_select_db($database_name, $this->_connection)
 			or trigger_error('Cannot select database');
 		
 		return $this->_connection;
