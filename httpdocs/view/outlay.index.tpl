@@ -53,7 +53,7 @@
 		{if !$prev_day || $prev_day != $day || $smarty.foreach.weekday.last}
 		
 			{if $prev_day}
-				{if $smarty.foreach.weekday.last }
+				{if $smarty.foreach.weekday.last && $prev_day == $day}
 					{$outlay_record}
 				{/if}
 				<div class="outlay_record">
