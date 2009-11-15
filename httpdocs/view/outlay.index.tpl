@@ -35,10 +35,21 @@
 	color: blue;
 }
 
+h2 a {
+	text-decoration: none;
+}
+
 {/literal}
 </style>
 
-<h2>Расходы за текущую неделю</h2>
+<h2>
+	<a href="?year_week={$year_week}&go=prev">&larr;</a>
+	Расходы за {$week}-ю неделю
+	<a href="?year_week={$year_week}&go=next">&rarr;</a>
+</h2>
+
+
+
 
 <div id="outlay_index">
 {if $index}
@@ -75,7 +86,7 @@
 				{/if}
 				<div class="outlay_record daily_total">
 					<div class="outlay_description">
-						<strong>Итого:</strong>
+						<strong>Всего</strong>
 					</div>
 					
 					<div class="outlay_value">
@@ -110,4 +121,24 @@
 {else}
 	Нет информации о расходах
 {/if}
+</div>
+
+<div class="clear"></div>
+
+{assign var=total value=0}
+
+<div id="outlay_breakdown" style="padding:10px;">
+
+	<h2>Итоги {$week}-й недели</h2>
+	{foreach from=$breakdown item=category}
+	{assign var=total value=$total+$category->sum}
+	<div class="outlay_record">
+		<div class="outlay_description">{$category->name}</div>
+		<div class="outlay_value">{$category->sum}</div>
+	</div>
+	{/foreach}
+	<div class="outlay_record daily_total">
+		<div class="outlay_description"><b>Всего</b></div>
+		<div class="outlay_value"><u>{$total}</u></div>
+	</div>
 </div>
