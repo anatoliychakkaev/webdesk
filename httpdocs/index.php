@@ -1,5 +1,8 @@
 <?php
 	
+	list($msec, $sec) = split(' ', microtime());
+	$timeBegin = $sec + $msec;
+	
 	// get and save full path
 	$real_path	= empty($_SERVER['PATH_INFO'])?'':$_SERVER['PATH_INFO'];
 	$tpl->add('path', $real_path);
@@ -16,7 +19,7 @@
 		
 	}
 	
-	lg('\nURL \033[1;10m' . $_SERVER['PATH_INFO'] . '\033[00m requested at ' . date('r'));
+	lg('\nURL \033[1;10m' . $_SERVER['PATH_INFO'] . '\033[00m requested at \033[0;34m' . strftime('%c') . '\033[00m');
 	
 	// log input params
 	if ($_POST) {
@@ -109,5 +112,9 @@
 	$tpl->add('pp', $path_prefix);
 	
 	$tpl->display();
-
+	
+	list($msec, $sec) = split(' ', microtime());
+	$timeEnd = $sec + $msec;
+	lg('Total time taken: \033[0;34m' . sprintf('%01.4f', $timeEnd - $timeBegin) . '\033[00m sec, memory usage: ' . preg_replace('/(?<=\d)(?=(\d\d\d)+\b)/', ',', memory_get_usage()) . ' bytes');
+	
 ?>

@@ -30,17 +30,15 @@ div.clear {
 	height:20px;
 }
 
-#footer {
+#header {
 	font-size:10px;
-	position:relative;
-	margin-top:-21px; 
 	
 	height:20px; 
 	line-height: 20px;
 	vertical-align:middle;
 
 	width:100%; 
-	border-top: 1px solid #a4a5a4;
+	border-bottom: 1px solid #a4a5a4;
 	background:#bbb;
 	color: #fff;
 	text-align:right;

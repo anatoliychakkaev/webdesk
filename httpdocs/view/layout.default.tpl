@@ -15,13 +15,7 @@
 	<script type="text/javascript" language='javascript' src='/scripts/jquery-1.2.6.min.js'></script>
 </head>
 <body>
-<div class="wrap">
-	<div class="contentdiv">
-	{include file=$body}
-	</div>
-   	<div class="empty_inner" style="">&#160;</div>
-</div>
-<div id="footer">
+<div id="header" style="clear:both;">
 	<div style="float:left;">
 		{if $user->logged_in}
 			Logged as {$user->email},
@@ -34,6 +28,12 @@
 	<div style="float:right;">
 		my webdesk '09 &#160;
 	</div>
+</div>
+<div class="wrap">
+	<div class="contentdiv">
+	{include file=$body}
+	</div>
+   	<div class="empty_inner" style="">&#160;</div>
 </div>
 </body>
 </html>
