@@ -220,6 +220,13 @@ class db_entity {
 		return $this->table_info;
 	}
 	
+	function on_before_save() {
+		return true;
+	}
+	
+	function on_after_create() {
+		return true;
+	}
 }
 
 class universal_entity extends db_entity {

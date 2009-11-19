@@ -98,7 +98,7 @@ class crud_ctl extends std_ctl {
 		$this->tpl->add('pk', $this->entity_id);
 		
 		$view_name = $this->view_prefix . $this->table . '.' . $this->screen;
-		if ($this->tpl->view_defined($view_name)) {
+		if ($this->tpl->view_defined($view_name, $checked_files)) {
 			$this->tpl->view($view_name);
 		} else {
 			$this->tpl->add('custom_view', $view_name);
