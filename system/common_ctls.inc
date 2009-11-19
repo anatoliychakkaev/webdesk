@@ -47,7 +47,9 @@ class std_ctl {
 	}
 	
 	function _relative_redirect($path = '') {
+		lg('redirect to ' . $this->path_prefix . $path);
 		header('Location: ' . $this->path_prefix . $path);
+		exit;
 	}
 }
 

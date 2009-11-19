@@ -114,7 +114,7 @@ class Template {
 		
 		if ($format) {
 			// try to find format-oriented template
-			if (!$found && !is_file($found	= $base_name . '.' . $format . '.tpl')) {
+			if (!$found && !is_file($found = $base_name . '.' . $format . '.tpl')) {
 				$checked_files[] = $found;
 				$found = '';
 			}
