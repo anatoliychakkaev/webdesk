@@ -21,6 +21,7 @@ function category_changed(select_category) {
 <div class="field">
 	<label for="field_outlay_category_id">Категория расхода</label>
 	<select id="field_outlay_category_id" name="outlay_category_id" tabindex="1" onchange="category_changed(this);">
+		<option value="-1">Выберите категорию расхода</option>
 	{foreach from=$outlay_categories item=category key=id}
 		<option value="{$id}" {if $outlay->outlay_category_id == $id}selected{/if}>{$category}</option>
 	{/foreach}
