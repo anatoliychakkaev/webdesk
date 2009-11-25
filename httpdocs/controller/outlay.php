@@ -13,16 +13,21 @@ class outlay_ctl extends crud_ctl {
 	*/
 	
 	function __init() {
+		// parent init should be called first
+		parent::__init();
+		
+		// hook deefault view into weekly action
 		if ($this->screen == 'index') {
 			$this->screen = 'weekly';
 		}
-		$this->tpl->add('outlay_categories', db_fetch_array('
+		
+		// assign common attributes (required for all actions)
+		$this->tpl->add_secondary('outlay_categories', db_fetch_array('
 			SELECT id, name
 			FROM outlay_category',
 			'name', 'id'));
-		return parent::__init();
 	}
-
+	
 	function weekly() {
 		$year_week = cm_get('year_week', 'string') or
 		$year_week = date('Y_W');
@@ -80,5 +85,5 @@ class outlay_ctl extends crud_ctl {
 	}
 }
 
-
+/* :collapseFolds=2: */
 ?>

@@ -41,7 +41,6 @@ class Template {
 	}
 	
 	function add($name, &$value, $type = '', $is_primary = true) {
-		
 		$v = new stdClass();
 		$v->type = $type;
 		$v->value = $value;
@@ -62,12 +61,10 @@ class Template {
 	}
 	
 	function view($view = '') {
-		
 		if ($view) {
 			$this->_view = $view;
 		}
 		return $this->_view;
-		
 	}
 	
 	function layout($layout_name = 'default') {
@@ -132,7 +129,6 @@ class Template {
 	}
 	
 	function format_vars($format) {
-		
 		//$vars = $this->vars_to_string(count($this->primary_vars)?$this->primary_vars:$this->ordinary_vars);
 		$vars = count($this->primary_vars)?$this->primary_vars:$this->ordinary_vars;
 		
@@ -155,7 +151,6 @@ class Template {
 	}
 	
 	function vars_to_xml($vars) {
-		
 		$t = '<?xml version="1.0" encoding"UTF-8">
 		<data>
 		';
@@ -174,7 +169,6 @@ class Template {
 	}
 	
 	function var_to_xml($x){
-		
 		if(is_scalar($x))return '	<scalar>' . $x . '</scalar>';
 		if(is_object($x)){
 			$t = '	<object>
@@ -271,4 +265,5 @@ class Template {
 	
 }
 
+/* :collapseFolds=2: */
 ?>

@@ -39,6 +39,13 @@ h2 a {
 	text-decoration: none;
 }
 
+.inline_block {
+	display: -moz-inline-box; display: inline-block; *zoom: 1; *display: inline; /* фаза 1 — добавляем inline-block */
+	word-spacing: normal; /* фаза два — восстанавливаем убранный пробел в блоках */
+	vertical-align: top; /* IE6 некорректно позиционирует без этого */
+	padding: 10px;
+}
+
 {/literal}
 </style>
 
@@ -53,7 +60,6 @@ h2 a {
 
 <div id="outlay_index">
 {if $index}
-	{assign var=block_number value=1}
 	{foreach name=weekday from=$index item=outlay}
 		
 		{assign var=day value=$outlay->created_at|date_format:'%A, %e %b'}
@@ -94,14 +100,10 @@ h2 a {
 					</div>
 				</div>
 			</div>
-			{if $block_number%3==0}
-			<div class="clear"></div>
-			{/if}
-			{assign var=block_number value=$block_number+1}
 			{assign var=total value=$outlay->value}
 			{/if}
 			{if !$smarty.foreach.weekday.last || $prev_day != $day}
-			<div style="float: left; padding: 10px;">
+			<div class="inline_block">
 			
 			<div class="block_header{if $smarty.now|date_format == $outlay->created_at|date_format} active{/if}">
 				{$day}
