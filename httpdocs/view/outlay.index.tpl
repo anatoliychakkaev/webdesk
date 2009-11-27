@@ -16,19 +16,13 @@
 
 .outlay_value {
 	float: right;
-	max-width: 50px;
+	max-width: 65px;
 	clear: right;
 }
 
 .daily_total {
 	border-top: 1px solid #000;
 	height: 20px;
-}
-
-.block_header {
-	font-weight: 700;
-	text-decoration: underline;
-	padding-bottom: 14px;
 }
 
 .active {
@@ -43,7 +37,34 @@ h2 a {
 	display: -moz-inline-box; display: inline-block; *zoom: 1; *display: inline; /* фаза 1 — добавляем inline-block */
 	word-spacing: normal; /* фаза два — восстанавливаем убранный пробел в блоках */
 	vertical-align: top; /* IE6 некорректно позиционирует без этого */
-	padding: 10px;
+	padding: 5px;
+	margin: 3px;
+	background: #fff;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border: 1px solid #bbb;
+}
+
+.block_header {
+	font-weight: 700;
+	border-bottom: 1px solid #000;
+	margin-bottom: 7px;
+	padding-bottom: 7px;
+	padding-top: 7px;
+}
+
+.block_footer {
+	font-weight: 700;
+	border-top: 1px solid #000;
+	margin-top: 7px;
+	padding-bottom: 7px;
+	padding-top: 7px;
+	float: left;
+	width: 270px;
+}
+
+.block_footer div {
+	padding-bottom: 0;
 }
 
 {/literal}
@@ -54,9 +75,6 @@ h2 a {
 	Расходы за {$week}-ю неделю
 	<a href="?year_week={$year_week}&go=next">&rarr;</a>
 </h2>
-
-
-
 
 <div id="outlay_index">
 {if $index}
@@ -79,7 +97,9 @@ h2 a {
 				{$outlay->name}{if $outlay->note}: {$outlay->note}{/if}
 			</div>
 			<div class="outlay_value">
-				<a href="{$pp}{$outlay->id}/edit">{$outlay->value}</a>
+				<!--a href="{$pp}{$outlay->id}/edit"-->
+				{'%01.2f'|sprintf:$outlay->value}
+				<!--/a-->
 			</div>
 		</div>
 		{/capture}
@@ -90,13 +110,13 @@ h2 a {
 				{if $smarty.foreach.weekday.last && $prev_day == $day}
 					{$outlay_record}
 				{/if}
-				<div class="outlay_record daily_total">
+				<div class="block_footer">
 					<div class="outlay_description">
 						<strong>Всего</strong>
 					</div>
 					
 					<div class="outlay_value">
-						<u>{$total}</u>
+						<u>{'%01.2f'|sprintf:$total}</u>
 					</div>
 				</div>
 			</div>

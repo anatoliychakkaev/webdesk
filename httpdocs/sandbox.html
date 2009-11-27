@@ -1,26 +1,63 @@
-<!DOCTYPE html5>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" debug="true">
 <head>
-<script type="text/javascript" language='javascript' src='/scripts/jquery-1.2.6.min.js'></script>
-<script>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style>
+body {
+	font-size: 11px;
+}
+.autocomplete_menu {
+	display: none;
+	background-color: #FFF;
+	border: 1px solid #CACACA;
+	font-family: verdana;
+	font-size: 1em;
+	left: 0;
+	margin: 2px 0 0 2px;
+	position: absolute;
+	text-align: left;
+	top: 0;
+	z-index: 100;
+}
 
-(function($){
-	var inputPoller = function (element, callback, poll_interval) {
+.autocomplete_menu ul {
+	margin: 0;
+	padding: 2px;
+}
+
+.autocomplete_menu ul li {
+	list-style-image: none;
+	list-style-position: outside;
+	list-style-type: none;
+	padding: 3px;
+	cursor: default;
+}
+
+.autocomplete_menu ul li.selected {
+	color: #fff;
+	background: #0060BF;
+}
+</style>
+<script language='javascript' src='/scripts/jquery-1.2.6.min.js'></script>
+<script>
+/*global jQuery, $ */
+(function ($) {
+	var InputPoller = function (element, callback, poll_interval) {
 		var poll_object = this;
 		var prev_sel_start;
 		var prev_sel_end;
 		var prev_element_value, timer;
 		this.tick = function () {
-			if (!element || !element.parentNode ) {
+			if (!element || !element.parentNode) {
 				return false;
 			}
-			if (element.selectionStart || element.selectionStart == 0) {
+			if (element.selectionStart || element.selectionStart === 0) {
 				var sel_start = element.selectionStart;
 				var sel_end = element.selectionEnd;
-				if (sel_start != prev_sel_start || sel_end != prev_sel_end) {
+				if (sel_start !== prev_sel_start || sel_end !== prev_sel_end) {
 					prev_sel_start = sel_start;
 					prev_sel_end = sel_end;
-					if (prev_element_value != element.value) {
+					if (prev_element_value !== element.value) {
 						prev_element_value = element.value;
 						return true;
 					}
@@ -40,7 +77,7 @@
 		this.destroy = function () {
 			clearInterval(timer);
 		};
-		if (poll_interval == undefined) {
+		if (poll_interval === undefined) {
 			poll_interval = 500;
 		}
 		timer = setInterval(poller, poll_interval);
@@ -57,7 +94,166 @@
 		$(window).keypress(f);
 		this.keypress(f);
 		this.keydown(f);
-		poller = new inputPoller(el, f);
+		var poller = new InputPoller(el, f);
+	};
+})(jQuery);
+
+(function ($) {
+	var VK_ESC = 27,
+		VK_DOWN = 40,
+		VK_UP = 38,
+		VK_RETURN = 13;
+	
+	function is_special_char(char) {
+		return $.inArray(char, [VK_RETURN, VK_ESC, VK_UP, VK_DOWN]) !== -1;
+	}
+	
+	function populate_menu_with_items($menu, items) {
+		var options = [];
+		for (var i = 0, len = items.length; i < len; i++) {
+			options.push('<li' + (i === 0 ? ' class="selected"' : '') + ' onmouseover="$(this).addClass(\'selected\').siblings(\'.selected\').removeClass(\'selected\')">' + items[i] + '<\/li>');
+		}
+		$menu.html('<ul>' + options.join('') + '<\/ul>');
+	}
+	
+	/*
+	 * @param options should be Object with members - characters
+	 * example:
+	 * var options = {
+	 *     '#': ['tag1', 'tag2', 'tag3'],
+	 *     '@': ['place1', 'place2']
+	 * }
+	 */
+	$.fn.autocomplete = function (options) {
+		if (!options) {
+			return this;
+		}
+		
+		// map chars into char codes if any
+		for (var i in options) {
+			if (options.hasOwnProperty(i) && typeof i === 'string' && i.length === 1) {
+				options[i.charCodeAt(0)] = options[i];
+				delete options[i];
+			}
+		}
+		
+		return this.each(function () {
+			var $fake_input = $('<div style="float: left; clear: both; display: none;"><\/div>');
+			var $input = $(this);
+			var input = this;
+			var $autocomplete_menu = $('<div class="autocomplete_menu"><\/div>');
+			var menu_displayed = false;
+			
+			var css = {};
+			$(['font-size', 'font-family', 'font-weight', 'border']).each(function () {
+				css[this] = $input.css(this);
+			});
+			$fake_input.css(css);
+			$('body').append($fake_input).append($autocomplete_menu);
+			
+			function apply_selected() {
+				var $li = $autocomplete_menu.find('li.selected');
+				var inp = $input[0];
+				var before_cursor = inp.value.substr(0, inp.selectionStart);
+				var after_cursor = inp.value.substr(inp.selectionEnd);
+				inp.value = before_cursor + $li.html() + after_cursor;
+				hide_menu();
+			}
+			
+			function update_menu_position() {
+				var absolute_offset = {left: $input[0].offsetLeft, top: $input[0].offsetTop};
+				var op = $input[0];
+				while ((op = op.offsetParent)) {
+					absolute_offset.left += op.offsetLeft;
+					absolute_offset.top += op.offsetTop;
+				}
+				
+				$fake_input.html($input.val().substr(0, $input[0].selectionStart).replace(/ /g, '&nbsp;'));
+				var cursor_offset = $fake_input.width();
+				
+				absolute_offset.left += cursor_offset;
+				absolute_offset.top += $input.height();
+				
+				$autocomplete_menu.css(absolute_offset);
+			}
+			
+			function show_menu() {
+				$autocomplete_menu.show();
+				menu_displayed = true;
+			}
+			
+			function hide_menu() {
+				$autocomplete_menu.hide();
+				menu_displayed = false;
+			}
+			
+			function handle_special_char(char) {
+				if (char === VK_RETURN) {
+					apply_selected();
+					return true;
+				}
+				if (char === VK_ESC) {
+					hide_menu();
+					return true;
+				}
+				var is_down_arrow = (char === VK_DOWN);
+				var siblingNode = is_down_arrow ? 'nextSibling' : 'previousSibling';
+				var limitNode = is_down_arrow ? 'first' : 'last';
+				var $li = $autocomplete_menu.find('li.selected');
+				if ($li.size() === 1) {
+					if ($li[0][siblingNode]) {
+						$($li[0][siblingNode]).addClass('selected');
+						$li.removeClass('selected');
+					}
+				} else {
+					$autocomplete_menu.find('li:' + limitNode).addClass('selected');
+				}
+			}
+			
+			function handle_literal_char(char) {
+				var items = options[char];
+				if (!items) {
+					var val = input.value.substr(0, input.selectionStart);
+					for (var i in options) {
+						if (options.hasOwnProperty(i) && typeof i === 'string') {
+							// console.log('Checking "' + val + '" with rule /' + i + '/');
+							var r = new RegExp(i);
+							if (r.test(val)) {
+								items = options[i];
+								// console.log('success');
+								break;
+							} else {
+								// console.log('fail');
+							}
+						}
+					}
+				}
+				if (!items) {
+					hide_menu();
+					return true;
+				}
+				populate_menu_with_items($autocomplete_menu, items);
+				update_menu_position();
+				show_menu();
+			}
+			
+			$autocomplete_menu.click(apply_selected);
+			
+			input.onkeypress = function (e) {
+				e = e || window.event;
+				var char = e.keyCode || e.charCode;
+				if (!char) {
+					return true;
+				}
+				if (is_special_char(char)) {
+					handle_special_char(char);
+				} else {
+					setTimeout(function () {
+						handle_literal_char(char);
+					}, 100);
+				}
+			};
+		});
 	};
 })(jQuery);
 
@@ -66,12 +262,24 @@
 $(document).ready(function () {
 
 	var $msg = $('span#msg');
-
+	var $input = $('input[type=text]:eq(0)');
+	$input.autocomplete({
+		'^\\d+\\s+': [
+			'Питание', 'Бытовые расходы', 'Машина', 'Новая категория'
+		],
+		'#': [
+			'Tag1', 'Tag2', 'Tag3'
+		],
+		'@': [
+			'Work', 'Home', 'Kazan', 'Moscow'
+		]
+	});
+	/*
 	var x = $('#text_input');
 	x.smart_change(function() {
 		$msg.text(x[0].value.length);
 	});
-
+	*/
 });
 
 </script>
@@ -81,7 +289,7 @@ $(document).ready(function () {
 
 <span id="msg"></span><br/><br/>
 
-<input type="text" id="text_input" />
+<input type="text" id="text_input" style="border: 1px solid #000;" size="50" /><br/>
 
 </body>
 
