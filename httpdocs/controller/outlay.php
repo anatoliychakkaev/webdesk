@@ -26,6 +26,11 @@ class outlay_ctl extends crud_ctl {
 			SELECT id, name
 			FROM outlay_category',
 			'name', 'id'));
+		
+		$this->tpl->add_secondary('outlay_notes', db_fetch_array('
+			SELECT DISTINCT note
+			FROM outlay'));
+		
 	}
 	
 	function weekly() {
@@ -74,6 +79,21 @@ class outlay_ctl extends crud_ctl {
 	function create() {
 		if ($_POST) {
 			$_POST['user_id'] = $this->user->id;
+			if (!empty($_POST['mixed_value']) && preg_match('/^(\\d+)\\s+([^:]+):?\\s*(.*)$/', $_POST['mixed_value'], $matches)) {
+				$_POST['value'] = $matches[1];
+				$_POST['note'] = trim($matches[3]);
+				$category_name = trim($matches[2]);
+				$catetory_id = db_fetch_value('
+					SELECT id
+					FROM outlay_category
+					WHERE `name` = "' . db_escape($category_name) . '"
+					LIMIT 1
+				');
+				if (!$catetory_id) {
+					$catetory_id = db_insert('outlay_category', array('name' => $category_name));
+				}
+				$_POST['outlay_category_id'] = $catetory_id;
+			}
 			$id = db_insert($this->table, $_POST);
 			$this->_relative_redirect('index');
 		}

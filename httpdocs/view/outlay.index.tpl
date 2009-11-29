@@ -97,9 +97,9 @@ h2 a {
 				{$outlay->name}{if $outlay->note}: {$outlay->note}{/if}
 			</div>
 			<div class="outlay_value">
-				<!--a href="{$pp}{$outlay->id}/edit"-->
+				<a href="{$pp}{$outlay->id}/edit">
 				{'%01.2f'|sprintf:$outlay->value}
-				<!--/a-->
+				</a>
 			</div>
 		</div>
 		{/capture}
