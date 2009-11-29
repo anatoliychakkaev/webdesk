@@ -102,16 +102,32 @@ body {
 	var VK_ESC = 27,
 		VK_DOWN = 40,
 		VK_UP = 38,
-		VK_RETURN = 13;
+		VK_RETURN = 13,
+		VK_LEFT = 37,
+		VK_RIGHT = 39,
+		VK_HOME = 36,
+		VK_END = 35;
 	
 	function is_special_char(char) {
-		return $.inArray(char, [VK_RETURN, VK_ESC, VK_UP, VK_DOWN]) !== -1;
+		return $.inArray(char, [VK_RETURN, VK_ESC, VK_UP, VK_DOWN,
+			VK_LEFT, VK_RIGHT, VK_HOME, VK_END]) !== -1;
 	}
 	
-	function populate_menu_with_items($menu, items) {
-		var options = [];
-		for (var i = 0, len = items.length; i < len; i++) {
-			options.push('<li' + (i === 0 ? ' class="selected"' : '') + ' onmouseover="$(this).addClass(\'selected\').siblings(\'.selected\').removeClass(\'selected\')">' + items[i] + '<\/li>');
+	function populate_menu_with_items($menu, items, value) {
+		var options = [], item, len = items.length, i;
+		if (typeof value === 'undefined') {
+			value = '';
+		}
+		var first = true;
+		for (i = 0; i < len; i++) {
+			item = items[i];
+			if (!value || item.indexOf(value) !== -1) {
+				options.push('<li' + (first ? ' class="selected"' : '') +
+					' onmouseover="$(this).addClass(\'selected\').siblings(\'.selected\').removeClass(\'selected\')">' +
+					'<strong>' + item.substr(0, value.length) + '</strong>' +
+					item.substr(value.length) + '<\/li>');
+				first = false;
+			}
 		}
 		$menu.html('<ul>' + options.join('') + '<\/ul>');
 	}
@@ -127,14 +143,6 @@ body {
 	$.fn.autocomplete = function (options) {
 		if (!options) {
 			return this;
-		}
-		
-		// map chars into char codes if any
-		for (var i in options) {
-			if (options.hasOwnProperty(i) && typeof i === 'string' && i.length === 1) {
-				options[i.charCodeAt(0)] = options[i];
-				delete options[i];
-			}
 		}
 		
 		return this.each(function () {
@@ -156,7 +164,7 @@ body {
 				var inp = $input[0];
 				var before_cursor = inp.value.substr(0, inp.selectionStart);
 				var after_cursor = inp.value.substr(inp.selectionEnd);
-				inp.value = before_cursor + $li.html() + after_cursor;
+				inp.value = before_cursor + $li.text() + after_cursor;
 				hide_menu();
 			}
 			
@@ -196,6 +204,9 @@ body {
 					hide_menu();
 					return true;
 				}
+				if ($.inArray(char, [VK_DOWN, VK_UP]) === -1) {
+					return true;
+				}
 				var is_down_arrow = (char === VK_DOWN);
 				var siblingNode = is_down_arrow ? 'nextSibling' : 'previousSibling';
 				var limitNode = is_down_arrow ? 'first' : 'last';
@@ -211,19 +222,28 @@ body {
 			}
 			
 			function handle_literal_char(char) {
-				var items = options[char];
-				if (!items) {
-					var val = input.value.substr(0, input.selectionStart);
-					for (var i in options) {
-						if (options.hasOwnProperty(i) && typeof i === 'string') {
-							// console.log('Checking "' + val + '" with rule /' + i + '/');
-							var r = new RegExp(i);
-							if (r.test(val)) {
-								items = options[i];
-								// console.log('success');
+				var val = input.value.substr(0, input.selectionStart),
+					items = false, value_for_match;
+				for (var i in options) {
+					if (options.hasOwnProperty(i) && typeof i === 'string') {
+						re_str = i.length === 1 ? '\\' + i + '([^\\' + i + ']*)$' : i;
+						var r = new RegExp(re_str);
+						var res;
+						if ((res = val.match(r))) {
+							items = options[i];
+							value_for_match = res[1];
+							var found = false;
+							for (var j in items) {
+								if (items[j].toLowerCase().indexOf(value_for_match.toLowerCase()) !== -1) {
+									found = true;
+									break;
+								}
+								//console.log(items[i].toLowerCase(), value_for_match.toLowerCase());
+							}
+							if (found) {
 								break;
 							} else {
-								// console.log('fail');
+								items = false;
 							}
 						}
 					}
@@ -232,9 +252,11 @@ body {
 					hide_menu();
 					return true;
 				}
-				populate_menu_with_items($autocomplete_menu, items);
-				update_menu_position();
-				show_menu();
+				populate_menu_with_items($autocomplete_menu, items, value_for_match);
+				if (!menu_displayed) {
+					update_menu_position();
+					show_menu();
+				}
 			}
 			
 			$autocomplete_menu.click(apply_selected);
@@ -264,8 +286,8 @@ $(document).ready(function () {
 	var $msg = $('span#msg');
 	var $input = $('input[type=text]:eq(0)');
 	$input.autocomplete({
-		'^\\d+\\s+': [
-			'Питание', 'Бытовые расходы', 'Машина', 'Новая категория'
+		'^\\d+\\s+(.*)$': [
+			'Питание', 'Бытовые расходы', 'Машина', 'Новая категория', 'Health'
 		],
 		'#': [
 			'Tag1', 'Tag2', 'Tag3'
