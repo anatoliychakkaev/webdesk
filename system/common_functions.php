@@ -203,7 +203,7 @@ function pr_die ($struct) {/* {{{ */
 		<cm_ses>
 */
 function cm_get ($key, $type='int') {/* {{{ */
-	$r = $_GET[$key];
+	$r = empty($_GET[$key]) ? '' : $_GET[$key];
 	switch($type){
 		case 'int':
 		case 'integer':

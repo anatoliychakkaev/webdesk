@@ -42,7 +42,7 @@ class outlay_ctl extends crud_ctl {
 		} else {
 			$offset = $_GET['go'] == 'prev' ? 2 : 0;
 		}
-		$time = strtotime($year . '0104 +' . ($week - $offset) . ' weeks');
+		$time = strtotime('+' . $week - $offset . ' weeks', mktime(0, 0, 0, 1, 1, $year));
 		$date = db_date($time);
 		
 		$sql_breakdown = '
