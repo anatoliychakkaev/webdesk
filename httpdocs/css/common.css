@@ -6,9 +6,8 @@ html, body {
 
 .wrap {
 	background: #eee;
-	position: relative;
 	width: 900px;
-	margin: 0px auto;
+	margin: -21px auto;
 	
 	height: auto !important;
 	height: 100%;
@@ -26,27 +25,27 @@ div.clear {
 	padding:10px;
 }
 
-.empty_inner {
-	height:20px;
-}
-
 #header {
 	font-size:10px;
 	
 	height:20px; 
 	line-height: 20px;
 	vertical-align:middle;
-
-	width:100%; 
-	border-bottom: 1px solid #a4a5a4;
-	background:#bbb;
-	color: #fff;
+	
+	padding-left: 5px;
+	border-bottom: 1px solid #ccc;
+	background: #eee;
+	color: #666;
 	text-align:right;
+}
+
+#header a {
+	text-decoration: none;
 }
 
 body {
 	color: #000;
-	background: #ddd;
+	background: #FFF;
 	font-family:Verdana,Tahoma,Helvetica,Arial,sans-serif;
 	font-size:11px;
 	font-size-adjust:none;

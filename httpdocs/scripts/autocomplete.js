@@ -13,6 +13,9 @@
 			VK_LEFT, VK_RIGHT, VK_HOME, VK_END]) !== -1;
 	}
 	
+	/**
+	 * returns count of populated items
+	 */
 	function populate_menu_with_items($menu, items, value) {
 		var options = [], item, len = items.length, i;
 		if (typeof value === 'undefined') {
@@ -32,6 +35,32 @@
 			}
 		}
 		$menu.html('<ul>' + options.join('') + '<\/ul>');
+		return options.length;
+	}
+	
+	function prepare_input_parameters(items) {
+		var options = [];
+		if ($.isArray(items)) {
+			if (typeof items[0] === 'string') {
+				options.push({
+					regex: /^(.*)$/,
+					items: items
+				});
+			} else if (items[0].regex && items[0].items) {
+				// TODO: make input parameters more configurable
+				return items;
+			}
+		} else if (typeof items === 'object') {
+			for (var i in items) {
+				if (items.hasOwnProperty(i) && typeof i === 'string') {
+					options.push({
+						regex: new RegExp(i.length === 1 ? '\\' + i + '([^\\' + i + ']*)$' : i),
+						items: items[i]
+					});
+				}
+			}
+		}
+		return options;
 	}
 	
 	/*
@@ -42,10 +71,12 @@
 	 *     '@': ['place1', 'place2']
 	 * }
 	 */
-	$.fn.autocomplete = function (options) {
-		if (!options) {
+	$.fn.autocomplete = function (items) {
+		
+		if (!items) {
 			return this;
 		}
+		var options = prepare_input_parameters(items);
 		
 		return this.each(function () {
 			var $fake_input = $('<div style="float: left; clear: both; display: none;"><\/div>');
@@ -65,13 +96,19 @@
 				if (!menu_displayed) {
 					return true;
 				}
-				var $li = $autocomplete_menu.find('li.selected');
-				var inp = $input[0];
-				var after_cursor = inp.value.substr(inp.selectionEnd);
-				var before_cursor = inp.value.substr(0, inp.selectionStart);
-				var matched_part = $li.html().match(/\<strong\>(.*?)\<\/strong\>/)[1];
-				before_cursor = before_cursor.substr(0, before_cursor.length - matched_part.length) + matched_part;
-				inp.value = before_cursor + $li.html().replace(/\<strong\>.*?\<\/strong\>/, '') + after_cursor;
+				var $li = $autocomplete_menu.find('li.selected'),
+					inp = $input[0],
+					after_cursor = inp.value.substr(inp.selectionEnd),
+					before_cursor = inp.value.substr(0, inp.selectionStart),
+					matched_part = $li.html().match(/\<strong\>(.*?)\<\/strong\>/)[1];
+					
+				before_cursor = before_cursor.substr(0, before_cursor.length -
+					matched_part.length) + matched_part;
+				
+				inp.value = before_cursor +
+					$li.html().replace(/\<strong\>.*?\<\/strong\>/, '') +
+					$autocomplete_menu.suffix + after_cursor;
+					
 				hide_menu();
 			}
 			
@@ -83,7 +120,10 @@
 					absolute_offset.top += op.offsetTop;
 				}
 				
-				$fake_input.html($input.val().substr(0, $input[0].selectionStart - matched_part.length).replace(/ /g, '&nbsp;'));
+				$fake_input.html($input.val()
+					.substr(0, $input[0].selectionStart - matched_part.length)
+					.replace(/ /g, '&nbsp;')
+				);
 				var cursor_offset = $fake_input.width();
 				
 				absolute_offset.left += cursor_offset;
@@ -128,30 +168,26 @@
 				}
 			}
 			
-			function handle_literal_char(char) {
+			function handle_literal_char(char, options) {
 				var val = input.value.substr(0, input.selectionStart),
 					items = false, value_for_match;
-				for (var i in options) {
-					if (options.hasOwnProperty(i) && typeof i === 'string') {
-						re_str = i.length === 1 ? '\\' + i + '([^\\' + i + ']*)$' : i;
-						var r = new RegExp(re_str);
-						var res;
-						if ((res = val.match(r))) {
-							items = options[i];
-							value_for_match = res[1];
-							var found = false;
-							for (var j in items) {
-								if (items[j].toLowerCase().indexOf(value_for_match.toLowerCase()) !== -1) {
-									found = true;
-									break;
-								}
-								//console.log(items[i].toLowerCase(), value_for_match.toLowerCase());
-							}
-							if (found) {
+				for (var i = 0, len = options.length; i < len; i++) {
+					var res;
+					if ((res = val.match(options[i].regex)) && res.length > 1) {
+						items = options[i].items;
+						value_for_match = res[1].toLowerCase();
+						var found = false;
+						for (var j in items) {
+							if (items[j].toLowerCase().indexOf(value_for_match) !== -1) {
+								found = true;
 								break;
-							} else {
-								items = false;
 							}
+						}
+						if (found) {
+							$autocomplete_menu.suffix = options[i].suffix || '';
+							break;
+						} else {
+							items = false;
 						}
 					}
 				}
@@ -159,8 +195,8 @@
 					hide_menu();
 					return true;
 				}
-				populate_menu_with_items($autocomplete_menu, items, value_for_match);
-				if (!menu_displayed) {
+				if (populate_menu_with_items($autocomplete_menu, items, value_for_match) &&
+					!menu_displayed) {
 					update_menu_position(value_for_match);
 					show_menu();
 				}
@@ -171,15 +207,17 @@
 			var old_onkeypress = input.onkeypress;
 			input.onkeypress = function (e) {
 				e = e || window.event;
-				var char = e.keyCode || e.charCode;
-				if (!char) {
+				var char_code = e.keyCode || e.charCode;
+				if (!char_code) {
 					return true;
 				}
-				if (is_special_char(char)) {
-					return handle_special_char(char);
+				if (is_special_char(char_code)) {
+					if (menu_displayed && !handle_special_char(char_code)) {
+						return false;
+					}
 				} else {
 					setTimeout(function () {
-						handle_literal_char(char);
+						handle_literal_char(char_code, options);
 					}, 100);
 				}
 				return $.isFunction(old_onkeypress) ? old_onkeypress(e) : true;

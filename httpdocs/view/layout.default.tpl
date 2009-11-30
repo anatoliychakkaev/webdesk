@@ -12,10 +12,10 @@
 	<link rel="stylesheet" href="/css/ie6.css" type="text/css" media="projection, screen">
 	<![endif]-->
 	
-	<script type="text/javascript" language='javascript' src='/scripts/jquery-1.2.6.min.js'></script>
+	<script type="text/javascript" language='javascript' src='/scripts/jquery-1.3.2.js'></script>
 </head>
 <body>
-<div id="header" style="clear:both;">
+<div id="header" style="clear: both;">
 	<div style="float:left;">
 		{if $user->logged_in}
 			Logged as {$user->email},
@@ -33,7 +33,6 @@
 	<div class="contentdiv">
 	{include file=$body}
 	</div>
-   	<div class="empty_inner" style="">&#160;</div>
 </div>
 </body>
 </html>

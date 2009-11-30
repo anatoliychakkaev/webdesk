@@ -1,5 +1,3 @@
-{include file=outlay.create.tpl}
-
 <style>
 {literal}
 .outlay_record {
@@ -75,6 +73,10 @@ h2 a {
 	Расходы за {$week}-ю неделю
 	<a href="?year_week={$year_week}&go=next">&rarr;</a>
 </h2>
+
+<div style="padding-bottom: 15px">
+{include file=outlay.create.tpl}
+</div>
 
 <div id="outlay_index">
 {if $index}
