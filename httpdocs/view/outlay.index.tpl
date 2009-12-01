@@ -2,7 +2,6 @@
 {literal}
 .outlay_record {
 	padding-left: 20px;
-	width: 250px;
 	clear: both;
 }
 
@@ -27,25 +26,23 @@
 	color: blue;
 }
 
-h2 a {
-	text-decoration: none;
-}
-
 .inline_block {
 	display: -moz-inline-box; display: inline-block; *zoom: 1; *display: inline; /* фаза 1 — добавляем inline-block */
 	word-spacing: normal; /* фаза два — восстанавливаем убранный пробел в блоках */
 	vertical-align: top; /* IE6 некорректно позиционирует без этого */
 	padding: 5px;
-	margin: 3px;
+	margin-right: 5px;
+	margin-bottom: 5px;
 	background: #fff;
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
 	border: 1px solid #bbb;
+	width: 275px;
 }
 
 .block_header {
 	font-weight: 700;
-	border-bottom: 1px solid #000;
+	border-bottom: 1px dotted #478;
 	margin-bottom: 7px;
 	padding-bottom: 7px;
 	padding: 3px;
@@ -53,13 +50,11 @@ h2 a {
 
 .block_footer {
 	font-weight: 700;
-	border-top: 1px solid #000;
+	border-top: 1px dotted #478;
 	margin-top: 7px;
 	padding: 3px;
 	padding-top: 7px;
-	float: left;
 	clear: both;
-	width: 270px;
 }
 
 .block_footer div {
@@ -86,17 +81,17 @@ h2 a {
 {/literal}
 </style>
 
-<h2>
+<h2 class="page_section">
 	<a href="?year_week={$year_week}&go=prev">&larr;</a>
 	Расходы за {$week}-ю неделю
 	<a href="?year_week={$year_week}&go=next">&rarr;</a>
 </h2>
 
-<div style="padding-bottom: 15px">
+<div style="padding-bottom: 10px">
 {include file=outlay.create.tpl}
 </div>
 
-<div id="outlay_index">
+<div id="outlay_index" style="margin-bottom: -5px; margin-right: -5px;">
 {if $weekdata}
 	{foreach name=weekday from=$weekdata item=weekday}
 		<div class="inline_block">
@@ -104,7 +99,7 @@ h2 a {
 			<div class="block_header{if $smarty.now|date_format == $weekday[0]->items[0]->created_at|date_format} active{/if}">
 				{$weekday[0]->items[0]->created_at|date_format:'%A, %e %b'}
 			</div>
-			{assign var=total value=$total+$outlay->value}
+			{assign var=total value=0}
 			{foreach from=$weekday item=cat}
 			{assign var=total value=$total+$cat->total}
 			<div class="outlay_record" onclick="$(this).next('div').toggle();">
@@ -140,7 +135,6 @@ h2 a {
 			</div>
 		</div>
 	{/foreach}
-	</div>
 {else}
 	Нет информации о расходах
 {/if}
@@ -149,10 +143,15 @@ h2 a {
 <div class="clear"></div>
 
 {assign var=total value=0}
+{if $weekdata[1]}
+
+<h2 class="page_section">
+	Итоги недели
+</h2>
 
 <div id="outlay_breakdown" style="padding:10px;">
 
-	<h2>Итоги {$week}-й недели</h2>
+	
 	{foreach from=$breakdown item=category}
 	{assign var=total value=$total+$category->sum}
 	<div class="outlay_record">
@@ -165,3 +164,4 @@ h2 a {
 		<div class="outlay_value"><u>{$total}</u></div>
 	</div>
 </div>
+{/if}

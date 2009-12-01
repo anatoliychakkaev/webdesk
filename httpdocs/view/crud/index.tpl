@@ -1,6 +1,7 @@
-<h2>Index</h2>
+<h2 class="page_section">Index</h2>
 
-<table>
+
+<table class="list">
 	<thead>
 		<tr>
 		{foreach from=$table_info->col_names item=col}

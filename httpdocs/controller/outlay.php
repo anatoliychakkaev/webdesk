@@ -102,8 +102,12 @@ class outlay_ctl extends crud_ctl {
 			$prev_weekday = $outlay->weekday;
 			$prev_cat = $outlay->name;
 		}
-		$day[] = $cat;
-		$weekdata[] = $day;
+		if ($prev_cat) {
+			$day[] = $cat;
+		}
+		if ($prev_weekday !== -1) {
+			$weekdata[] = $day;
+		}
 		
 		$this->tpl->add('index', $outlay);
 		$this->tpl->add('weekdata', $weekdata);

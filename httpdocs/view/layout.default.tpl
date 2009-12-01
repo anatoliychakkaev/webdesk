@@ -15,21 +15,21 @@
 	<script type="text/javascript" language='javascript' src='/scripts/jquery-1.3.2.js'></script>
 </head>
 <body>
-<div id="header" style="clear: both;">
-	<div style="float:left;">
-		{if $user->logged_in}
-			Logged as {$user->email},
-			<a href='/system/logout'>logout</a>
-		{else}
-			<a href='/system/login'>[login]</a> or
-			<a href='/system/register'>[register]</a>
-		{/if}
-	</div>
-	<div style="float:right;">
-		my webdesk '09 &#160;
-	</div>
-</div>
 <div class="wrap">
+	<div id="header" style="clear: both;">
+		<div style="float:left;">
+			{if $user->logged_in}
+				Logged as {$user->email},
+				<a href='/system/logout'>logout</a>
+			{else}
+				<a href='/system/login'>[login]</a> or
+				<a href='/system/register'>[register]</a>
+			{/if}
+		</div>
+		<div style="float:right;padding-right: 5px;">
+			my webdesk
+		</div>
+	</div>
 	<div class="contentdiv">
 	{include file=$body}
 	</div>
