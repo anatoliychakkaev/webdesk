@@ -59,7 +59,11 @@ class outlay_ctl extends crud_ctl {
 		$this->tpl->add('breakdown', db_fetch_all($sql_breakdown));
 		
 		$sql = '
-			SELECT outlay.*, c.name, user.name as author_name
+			SELECT
+				outlay.*,
+				c.name,
+				user.name as author_name,
+				DAY(outlay.created_at) as weekday
 			FROM
 				outlay INNER JOIN
 				outlay_category c ON c.id = outlay.outlay_category_id LEFT JOIN
@@ -67,10 +71,42 @@ class outlay_ctl extends crud_ctl {
 			WHERE
 				WEEK(TIMESTAMPADD(DAY, -1, outlay.created_at)) =
 				WEEK(TIMESTAMPADD(DAY, -1, "' . $date . '"))
-			ORDER BY DAY(outlay.created_at) ASC, c.name ASC
+			ORDER BY
+				weekday ASC,
+				c.name ASC,
+				outlay.created_at
 		';
 		
-		$this->tpl->add('index', db_fetch_all($sql));
+		$outlay_records = db_fetch_all($sql);
+		$weekdata = array();
+		$prev_weekday = -1;
+		$day = array();
+		$cat->total = 0;
+		$cat->items = array();
+		$prev_cat = '';
+		foreach ($outlay_records as $outlay) {
+			// add old category to day, if new cat or new day
+			if ($prev_cat && $outlay->name !== $prev_cat || $prev_weekday !== -1 && $prev_weekday !== $outlay->weekday) {
+				$day[] = $cat;
+				$cat = new stdClass();
+				$cat->total = 0;
+				$cat->items = array();
+			}
+			// add old day to week, if new day
+			if ($prev_weekday !== -1 && $prev_weekday !== $outlay->weekday) {
+				$weekdata[] = $day;
+				$day = array();
+			}
+			$cat->total += $outlay->value;
+			$cat->items[] = $outlay;
+			$prev_weekday = $outlay->weekday;
+			$prev_cat = $outlay->name;
+		}
+		$day[] = $cat;
+		$weekdata[] = $day;
+		
+		$this->tpl->add('index', $outlay);
+		$this->tpl->add('weekdata', $weekdata);
 		$this->tpl->add('year_week', date('Y_W', $time));
 		$this->tpl->add('week', date('W', $time));
 		$this->tpl->view('outlay.index');
@@ -79,8 +115,8 @@ class outlay_ctl extends crud_ctl {
 	function create() {
 		if ($_POST) {
 			$_POST['user_id'] = $this->user->id;
-			if (!empty($_POST['mixed_value']) && preg_match('/^(\\d+)\\s+([^:]+):?\\s*(.*)$/', $_POST['mixed_value'], $matches)) {
-				$_POST['value'] = $matches[1];
+			if (isset($_POST['mixed_value']) && strlen($_POST['mixed_value']) && preg_match('/^(\\d+[.,]?\\d*)\\s+([^:]+):?\\s*(.*)$/', $_POST['mixed_value'], $matches)) {
+				$_POST['value'] = (float) str_replace(',', '.', $matches[1]);
 				$_POST['note'] = trim($matches[3]);
 				$category_name = trim($matches[2]);
 				$catetory_id = db_fetch_value('
@@ -93,8 +129,8 @@ class outlay_ctl extends crud_ctl {
 					$catetory_id = db_insert('outlay_category', array('name' => $category_name));
 				}
 				$_POST['outlay_category_id'] = $catetory_id;
+				$id = db_insert($this->table, $_POST);
 			}
-			$id = db_insert($this->table, $_POST);
 			$this->_relative_redirect('index');
 		}
 	}

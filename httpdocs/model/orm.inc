@@ -227,6 +227,10 @@ class db_entity {
 	function on_after_create() {
 		return true;
 	}
+	
+	function on_after_update() {
+		return true;
+	}
 }
 
 class universal_entity extends db_entity {

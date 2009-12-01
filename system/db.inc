@@ -125,7 +125,7 @@ class database {
 	}
 	
 	function escape($string) {
-		return mysql_real_escape_string($string);
+		return is_float($string) ? str_replace(',', '.', (string)$string) : mysql_real_escape_string($string);
 	}
 	
 	function desc($table) {
@@ -174,7 +174,6 @@ class database {
 			$values[] = $value;
 		}
 		if (!count($columns)) trigger_error('No matched columns');
-		
 		$sql = 'INSERT INTO ' . $this->escape($table) . ' 
 		(' . join(', ', $columns) . ') 
 		VALUES (' . join(', ', $values) . ')';

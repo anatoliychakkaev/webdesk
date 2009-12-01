@@ -48,21 +48,39 @@ h2 a {
 	border-bottom: 1px solid #000;
 	margin-bottom: 7px;
 	padding-bottom: 7px;
-	padding-top: 7px;
+	padding: 3px;
 }
 
 .block_footer {
 	font-weight: 700;
 	border-top: 1px solid #000;
 	margin-top: 7px;
-	padding-bottom: 7px;
+	padding: 3px;
 	padding-top: 7px;
 	float: left;
+	clear: both;
 	width: 270px;
 }
 
 .block_footer div {
 	padding-bottom: 0;
+}
+
+.outlay_category_breakdown {
+	float: left;
+	clear: both;
+	display: none;
+	border-top: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+	padding-top: 5px;
+	margin-bottom: 5px;
+	float: left;
+}
+
+.outlay_category_breakdown .outlay_record {
+	padding-left: 10px;
+	width: 260px;
+	color: #888;
 }
 
 {/literal}
@@ -79,67 +97,48 @@ h2 a {
 </div>
 
 <div id="outlay_index">
-{if $index}
-	{foreach name=weekday from=$index item=outlay}
-		
-		{assign var=day value=$outlay->created_at|date_format:'%A, %e %b'}
-		
-		{if $smarty.foreach.weekday.first}
-			{assign var=total value=0}
-		{/if}
-		
-		{* accumulat value if the same day as previous or first record in day *}
-		{if !$prev_day || $prev_day == $day}
+{if $weekdata}
+	{foreach name=weekday from=$weekdata item=weekday}
+		<div class="inline_block">
+			
+			<div class="block_header{if $smarty.now|date_format == $weekday[0]->items[0]->created_at|date_format} active{/if}">
+				{$weekday[0]->items[0]->created_at|date_format:'%A, %e %b'}
+			</div>
 			{assign var=total value=$total+$outlay->value}
-		{/if}
-		
-		{capture assign=outlay_record}
-		<div class="outlay_record">
-			<div class="outlay_description">
-				{$outlay->name}{if $outlay->note}: {$outlay->note}{/if}
-			</div>
-			<div class="outlay_value">
-				<a href="{$pp}{$outlay->id}/edit">
-				{'%01.2f'|sprintf:$outlay->value}
-				</a>
-			</div>
-		</div>
-		{/capture}
-		
-		{if !$prev_day || $prev_day != $day || $smarty.foreach.weekday.last}
-		
-			{if $prev_day}
-				{if $smarty.foreach.weekday.last && $prev_day == $day}
-					{$outlay_record}
-				{/if}
-				<div class="block_footer">
-					<div class="outlay_description">
-						<strong>Всего</strong>
-					</div>
-					
-					<div class="outlay_value">
-						<u>{'%01.2f'|sprintf:$total}</u>
-					</div>
+			{foreach from=$weekday item=cat}
+			{assign var=total value=$total+$cat->total}
+			<div class="outlay_record" onclick="$(this).next('div').toggle();">
+				<div class="outlay_description">
+					{$cat->items[0]->name}
+				</div>
+				<div class="outlay_value">
+					{'%01.2f'|sprintf:$cat->total}
 				</div>
 			</div>
-			{assign var=total value=$outlay->value}
-			{/if}
-			{if !$smarty.foreach.weekday.last || $prev_day != $day}
-			<div class="inline_block">
-			
-			<div class="block_header{if $smarty.now|date_format == $outlay->created_at|date_format} active{/if}">
-				{$day}
+			<div class="outlay_category_breakdown">
+				{foreach from=$cat->items item=outlay}
+				<div class="outlay_record">
+					<div class="outlay_description">
+						{$outlay->note|default:'no comment'}
+					</div>
+					<div class="outlay_value">
+						<a href="{$pp}{$outlay->id}/edit">{'%01.2f'|sprintf:$outlay->value}</a>
+					</div>
+				</div>
+				{/foreach}
 			</div>
-			{/if}
+			{/foreach}
 			
-			
-		{/if}
-		
-		{if !$smarty.foreach.weekday.last || $prev_day != $day}
-			{$outlay_record}
-		{/if}
-		
-		{assign var=prev_day value=$day}
+			<div class="block_footer">
+				<div class="outlay_description">
+					<strong>Всего</strong>
+				</div>
+				
+				<div class="outlay_value">
+					<u>{'%01.2f'|sprintf:$total}</u>
+				</div>
+			</div>
+		</div>
 	{/foreach}
 	</div>
 {else}
