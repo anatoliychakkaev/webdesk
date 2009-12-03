@@ -95,12 +95,17 @@
 {if $weekdata}
 	{foreach name=weekday from=$weekdata item=weekday}
 		<div class="inline_block">
-			
-			<div class="block_header{if $smarty.now|date_format == $weekday[0]->items[0]->created_at|date_format} active{/if}">
-				{$weekday[0]->items[0]->created_at|date_format:'%A, %e %b'}
+			{if $smarty.now|date_format == $weekday->last_record_time|date_format}
+			<div class="block_header active">
+				{$weekday->last_record_time|date_format:'%A, %e %b %H:%M'}
 			</div>
+			{else}
+			<div class="block_header">
+				{$weekday->last_record_time|date_format:'%A, %e %b'}
+			</div>
+			{/if}
 			{assign var=total value=0}
-			{foreach from=$weekday item=cat}
+			{foreach from=$weekday->items item=cat}
 			{assign var=total value=$total+$cat->total}
 			<div class="outlay_record" onclick="$(this).next('div').toggle();">
 				<div class="outlay_description">

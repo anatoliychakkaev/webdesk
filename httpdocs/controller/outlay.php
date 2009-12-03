@@ -80,22 +80,36 @@ class outlay_ctl extends crud_ctl {
 		$outlay_records = db_fetch_all($sql);
 		$weekdata = array();
 		$prev_weekday = -1;
-		$day = array();
+		$day->total = 0;
+		$day->last_record_time = 0;
+		$day->items = array();
 		$cat->total = 0;
 		$cat->items = array();
 		$prev_cat = '';
 		foreach ($outlay_records as $outlay) {
 			// add old category to day, if new cat or new day
 			if ($prev_cat && $outlay->name !== $prev_cat || $prev_weekday !== -1 && $prev_weekday !== $outlay->weekday) {
-				$day[] = $cat;
+				$day->total += $cat->total;
+				$day->items[] = $cat;
+				$last_record_time = $cat->items[count($cat->items) - 1]->created_at;
+				if ($day->last_record_time < $last_record_time) {
+					$day->last_record_time = $last_record_time;
+				}
 				$cat = new stdClass();
 				$cat->total = 0;
 				$cat->items = array();
 			}
 			// add old day to week, if new day
 			if ($prev_weekday !== -1 && $prev_weekday !== $outlay->weekday) {
+				$last_cat = $day->items[count($day->items) - 1];
+				$last_record_time = $last_cat->items[count($last_cat->items) - 1]->created_at;
+				if ($day->last_record_time < $last_record_time) {
+					$day->last_record_time = $last_record_time;
+				}
 				$weekdata[] = $day;
-				$day = array();
+				$day = new stdClass();
+				$day->total = 0;
+				$day->items = array();
 			}
 			$cat->total += $outlay->value;
 			$cat->items[] = $outlay;
@@ -103,7 +117,12 @@ class outlay_ctl extends crud_ctl {
 			$prev_cat = $outlay->name;
 		}
 		if ($prev_cat) {
-			$day[] = $cat;
+			$day->total += $cat->total;
+			$day->items[] = $cat;
+			$last_record_time = $cat->items[count($cat->items) - 1]->created_at;
+			if ($day->last_record_time < $last_record_time) {
+				$day->last_record_time = $last_record_time;
+			}
 		}
 		if ($prev_weekday !== -1) {
 			$weekdata[] = $day;

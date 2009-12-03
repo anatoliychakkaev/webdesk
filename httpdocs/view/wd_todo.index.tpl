@@ -56,7 +56,7 @@ $(document).ready(function () {
 {/literal}
 </script>
 
-<h2>Список задач {$todo_list->name}</h2>
+<h2 class='page_section'>Список задач {$todo_list->name}</h2>
 
 <div id="list_container">
 
@@ -77,7 +77,7 @@ $(document).ready(function () {
 
 </div>
 
-<h2>Новая задача</h2>
+<h2 class="page_section">Новая задача</h2>
 <form method="POST" action="{$pp}create" onsubmit="return ajax_submit(this);">
 	<input type="hidden" name="security_token" value="{$security_token}" />
 	<input name="task_name" value="" />

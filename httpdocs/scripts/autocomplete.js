@@ -79,23 +79,43 @@
 		var options = prepare_input_parameters(items);
 		
 		return this.each(function () {
-			var $fake_input = $('<div style="float: left; clear: both; display: none;"><\/div>');
+			var $fake_input = $('<div style="float: left;"><\/div>');
 			var $input = $(this);
 			var input = this;
 			var $autocomplete_menu = $('<div class="autocomplete_menu"><\/div>');
 			var menu_displayed = false;
 			
 			var css = {};
-			$(['font-size', 'font-family', 'font-weight', 'border']).each(function () {
-				css[this] = $input.css(this);
+			$(['font-size', 'font-family', 'font-weight', 'border']).each(function (i, rule) {
+				css[rule] = $input.css(rule);
 			});
 			$fake_input.css(css);
 			$('body').append($fake_input).append($autocomplete_menu);
+			
+			function ie_selection(element) {
+				if ($.browser.msie) {
+					var yourrange = element.createTextRange();
+					yourrange.setEndPoint('EndToStart', document.selection.createRange());
+					element.selectionStart = yourrange.text.length;
+					element.selectionEnd = element.selectionStart + yourrange.text.length;
+				}
+			}
+			
+			function show_menu() {
+				$autocomplete_menu.show();
+				menu_displayed = true;
+			}
+			
+			function hide_menu() {
+				$autocomplete_menu.hide();
+				menu_displayed = false;
+			}
 			
 			function apply_selected() {
 				if (!menu_displayed) {
 					return true;
 				}
+				ie_selection($input[0]);
 				var $li = $autocomplete_menu.find('li.selected'),
 					inp = $input[0],
 					after_cursor = inp.value.substr(inp.selectionEnd),
@@ -119,7 +139,7 @@
 					absolute_offset.left += op.offsetLeft;
 					absolute_offset.top += op.offsetTop;
 				}
-				
+				ie_selection($input[0]);
 				$fake_input.html($input.val()
 					.substr(0, $input[0].selectionStart - matched_part.length)
 					.replace(/ /g, '&nbsp;')
@@ -130,16 +150,6 @@
 				absolute_offset.top += $input.height();
 				
 				$autocomplete_menu.css(absolute_offset);
-			}
-			
-			function show_menu() {
-				$autocomplete_menu.show();
-				menu_displayed = true;
-			}
-			
-			function hide_menu() {
-				$autocomplete_menu.hide();
-				menu_displayed = false;
 			}
 			
 			function handle_special_char(char) {
@@ -204,8 +214,8 @@
 			
 			$autocomplete_menu.click(apply_selected);
 			
-			var old_onkeypress = input.onkeypress;
-			input.onkeypress = function (e) {
+			var old_onkeydown = input.onkeydown;
+			input[$.browser.opera ? 'onkeypress' : 'onkeydown'] = function (e) {
 				e = e || window.event;
 				var char_code = e.keyCode || e.charCode;
 				if (!char_code) {
@@ -220,7 +230,7 @@
 						handle_literal_char(char_code, options);
 					}, 100);
 				}
-				return $.isFunction(old_onkeypress) ? old_onkeypress(e) : true;
+				return $.isFunction(old_onkeydown) ? old_onkeydown(e) : true;
 			};
 		});
 	};
