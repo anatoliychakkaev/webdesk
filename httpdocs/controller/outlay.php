@@ -72,6 +72,7 @@ class outlay_ctl extends crud_ctl {
 				WEEK(TIMESTAMPADD(DAY, -1, outlay.created_at)) =
 				WEEK(TIMESTAMPADD(DAY, -1, "' . $date . '"))
 			ORDER BY
+				MONTH(outlay.created_at),
 				weekday ASC,
 				c.name ASC,
 				outlay.created_at

@@ -12,7 +12,13 @@
 			| <a href="{$pp}{$note->id}/edit">Редактировать</a>
 			{/if}
 		</div>
-			
+		{if $note->tags}
+		<div class="tags">
+			{foreach from=$note->tags item=tag}
+				<a href="{$pp}by_tag/{$tag}">{$tag}</a>
+			{/foreach}
+		</div>
+		{/if}
 	</div>
 	{/foreach}
 {else}

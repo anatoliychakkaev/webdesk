@@ -31,7 +31,10 @@
 	border: 1px solid #999999;
 	width: 450px;
 	height: 150px;
-	float: left;
+}
+.quick_post_box label {
+	font-weight: 700;
+	color: #779;
 }
 .topic {
 	background: #ddd;
@@ -73,8 +76,10 @@ $().ready(function () {
 
 <div class="quick_post_box">
 	<form action="{$pp}create" method="POST" id="quick_post_form">
-		<textarea name="note"></textarea>
-		<div class="clear"></div>
+		<label for="note">Текст заметки:</label><br/>
+		<textarea name="note" id="note"></textarea><br/>
+		<label for="tags">Тэги:</label><br/>
+		<input name="tags" id="tags" size="50" /><br/>
 		<input type="submit" value="Добавить запись" />
 	</form>
 </div>

@@ -87,7 +87,7 @@ class database {
 	
 	function fetch_value($sql, $field_name = false) {
 		$r = $this->fetch_one($sql, $field_name?false:true);
-		if (is_null($r)) {
+		if (!$r) {
 			return null;
 		}
 		if ($field_name) {
@@ -177,7 +177,7 @@ class database {
 		$sql = 'INSERT INTO ' . $this->escape($table) . ' 
 		(' . join(', ', $columns) . ') 
 		VALUES (' . join(', ', $values) . ')';
-		$x = mysql_query($sql, $this->_connection);
+		$x = $this->execute($sql);
 		
 		return $x?mysql_insert_id():false;
 	}

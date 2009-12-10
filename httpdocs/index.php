@@ -88,7 +88,7 @@
 
 	do {
 		
-		$controller = @$path[$path_offset] or	$controller = 'default';
+		$controller = @$path[$path_offset] or $controller = 'default';
 		$path_offset += 1;
 		
 		$ctl = get_controller_by_name($controller);
@@ -99,6 +99,7 @@
 		
 		$path_prefix .= $controller . '/' . $ctl->__parse_path($path_offset, $path);
 		$ctl->path_prefix =& $path_prefix;
+		$ctl->path = array_slice($path, $path_offset);
 		
 		$ctl->__init();
 		$ctl->__run();
