@@ -62,11 +62,6 @@ class crud_ctl extends std_ctl {
 	var $entity_name = 'data';
 	
 	/**
-	 * This field contains primary key of current record
-	**/
-	var $primary_key;
-	
-	/**
 	 * WTF???
 	 * todo: explain and move to std_ctl
 	**/
@@ -78,7 +73,7 @@ class crud_ctl extends std_ctl {
 	function __init() {
 		
 		if (!$this->table) {
-			trigger_error('crud controller requires $table field');
+			$this->table = preg_replace('/_ctl$/', '', get_class($this));
 		}
 		
 		//if (file_exists('model/
@@ -87,9 +82,8 @@ class crud_ctl extends std_ctl {
 		$this->entity = new universal_entity($this->table);
 		
 		if ($this->entity_id) {
-			$this->primary_key = $this->entity_id;
 			$this->entity->load($this->entity_id);
-			$this->tpl->add($this->entity_name, $this->entity->as_object());
+			$this->tpl->add($this->entity_name, $this->entity->as_array());
 		}
 		
 		if (!$this->screen) {
@@ -142,7 +136,6 @@ class crud_ctl extends std_ctl {
 	function edit() {
 		
 		if ($_POST) {
-			//db_update($this->table, $this->primary_key, $_POST);
 			$this->entity->update($_POST);
 			$this->_relative_redirect('view');
 		}
@@ -155,7 +148,6 @@ class crud_ctl extends std_ctl {
 	**/
 	function remove() {
 		if ($_POST) {
-			//db_delete($this->table, $this->primary_key);
 			$this->entity->delete();
 			$this->_relative_redirect('..');
 		}
@@ -203,10 +195,10 @@ class auth_ctl extends std_ctl {
 	
 	function login() {
 		if ($_POST) {
-			$this->user->login($_POST);
-			if ($this->user->logged_in) {
+			if ($this->user->login($_POST)) {
 				$redirect = wd_fetch_var('redirect', '/note');
 				header('Location: ' . $redirect);
+				exit;
 			}
 		}
 		$this->tpl->view('user.login');
@@ -215,6 +207,7 @@ class auth_ctl extends std_ctl {
 	function logout() {
 		$this->user->logout();
 		header('Location: /system/login');
+		exit;
 	}
 	
 	function activate() {

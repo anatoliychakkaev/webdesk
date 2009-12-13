@@ -1,4 +1,4 @@
-<h2>Register</h2>
+<h2 class="page_section">Register</h2>
 
 <form method="POST">
 	<table>

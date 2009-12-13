@@ -2,11 +2,9 @@
 
 class note_ctl extends crud_ctl {
 	
-	var $table = 'note';
-	var $entity_name = 'note';
-	
 	function __init() {
 		parent::__init();
+		$this->tpl->add_secondary('tags', db_fetch_array('SELECT name FROM tag ORDER BY name'));
 	}
 	
 	function index($bind_as = 'index') {

@@ -45,9 +45,21 @@
 {/literal}
 </style>
 
+<script language="javascript" src="/scripts/autocomplete.js"></script>
 <script>
+var tags = [{foreach from=$tags item=tag}'{$tag}',{/foreach}''];
 {literal}
-$().ready(function () {
+$(function () {
+	$('#tags').autocomplete([
+		{
+			regex: /^([^,]+)$/,
+			items: tags
+		},
+		{
+			regex: /^.*,\s+([^,]+)$/,
+			items: tags
+		}
+	]);
 	$('#quick_post_form').submit(function () {
 		var form_data = {};
 		var ta = this.elements.note;
@@ -79,7 +91,7 @@ $().ready(function () {
 		<label for="note">Текст заметки:</label><br/>
 		<textarea name="note" id="note"></textarea><br/>
 		<label for="tags">Тэги:</label><br/>
-		<input name="tags" id="tags" size="50" /><br/>
+		<input name="tags" id="tags" size="50" autocomplete="off" /><br/>
 		<input type="submit" value="Добавить запись" />
 	</form>
 </div>

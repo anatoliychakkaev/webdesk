@@ -1,5 +1,5 @@
 <?php
-	
+	//var_dump($_SESSION);exit;
 	list($msec, $sec) = split(' ', microtime());
 	$timeBegin = $sec + $msec;
 	

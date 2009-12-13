@@ -1,4 +1,4 @@
-<h2>Login</h2>
+<h2 class="page_section">Login</h2>
 
 <form method="POST">
 	<table>
