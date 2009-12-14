@@ -8,20 +8,7 @@ class note_ctl extends crud_ctl {
 	}
 	
 	function index($bind_as = 'index') {
-		$sql = '
-			SELECT note.*, user.name as author_name
-			FROM note LEFT JOIN user ON user.id = note.user_id
-			ORDER BY id DESC
-			LIMIT 20
-		';
-		$notes = db_fetch_all($sql);
-		foreach ($notes as $i => $note) {
-			$notes[$i]->tags = db_fetch_array('
-				SELECT tag.name
-				FROM tag INNER JOIN note_to_tag n ON n.tag_id = tag.id
-				WHERE n.note_id = ' . $note->id . '
-			');
-		}
+		$notes = $this->entity->find_all(null, array('limit' => 20, 'order' => 'created_at DESC'));
 		$this->tpl->add($bind_as, $notes);
 	}
 	

@@ -6,6 +6,7 @@ class db_entity { /* {{{ */
 	var $primary_key = 'id';
 	var $table_info = false;
 	var $has_many = array(); // field name => entity name
+	var $_loaded = false;
 	
 	var $attributes = array();
 	
@@ -53,23 +54,128 @@ class db_entity { /* {{{ */
 			}
 			return $this->_attr($name, $arguments[0]);
 		}
-		// has many
-		/*
-		$intities = pluralize($this->table);
-		if (isset($this->has_many[$intities])) {
-			die('as');
+		// build collection
+		$matches = array();
+		if (preg_match('/^find(_all|)(_by_(.*))?$/', $name, $matches)) {
+			if (($has_conditions = isset($matches[2]))) {
+				$conditions = preg_split('/_and_/', $matches[3]);
+			}
+			// find by id
+			if ($matches[0] === 'find' ||  $has_conditions &&
+				count($conditions) === 1 && $conditions[0] === 'id'
+			) {
+				$class_name = get_class($this);
+				return new $class_name($arguments[0]);
+			}
+			if ($has_conditions) {
+				$query_conditions = array();
+				$parameters = array();
+				foreach ($conditions as $i => $condition) {
+					$query_conditions[$condition] = $arguments[$i];
+				}
+				$parameters = @$arguments[$i + 1];
+			} else {
+				$query_conditions = @$arguments[0];
+				$parameters = @$arguments[1];
+			}
+			// find collection by query
+			if ($matches[1]) {
+				return $this->records_where($query_conditions, $parameters);
+			}
+			// find one by query
+			else {
+				return $this->record_where($query_conditions, $parameters);
+			}
 		}
-		*/
-		return true;
+		// has many
+		if (isset($this->has_many[$name])) {
+			$table = $this->has_many[$name];
+			if (is_string($table)) {
+				$entity = db_get_entity($table);
+				return $entity->records_where(
+					array($this->table . '_id' => $this->id)
+				);
+			} elseif (is_array($table)) {
+				$entity = db_get_entity($table['name']);
+				if (isset($table['trough'])) {
+					$_thr = $table['trough'];
+					$_tab = $table['name'];
+					return $entity->records_where(
+						array($this->table . '_id' => $this->id),
+						array(
+							'join' => "INNER JOIN `$_thr` ON `$_tab`.`id` = `$_thr`.`{$_tab}_id`",
+							'columns' => "`$_tab`.*",
+							'order' => @$table['order']
+						)
+					);
+				}
+			}
+		}
+		return;
 		/* }}} */
 	}
 	
+	function records_by_query($sql) {
+		$records = db_fetch_all($sql);
+		$class_name = get_class($this);
+		$result = array();
+		foreach ($records as $record) {
+			$result[] = new $class_name($record);
+		}
+		return $result;
+	}
+	
+	function records_where($conditions = null, $parameters = null) {
+		$query_conditions = array(1);
+		if (is_array($conditions)) {
+			foreach ($conditions as $key => $value) {
+				$query_conditions[] = '`' . db_escape($key) . '` = "' . db_escape($value) . '"';
+			}
+		}
+		if (is_null($parameters)) {
+			$parameters = array(
+				'columns' => '*'
+			);
+		}
+		if (empty($parameters['columns'])) {
+			$parameters['columns'] = '*';
+		}
+		$sql = '
+			SELECT ' . $parameters['columns'] . '
+			FROM `' . $this->table . '`
+			WHERE ' . join(' AND ', $query_conditions) . '
+		';
+		if (!empty($parameters['order'])) {
+			$sql .= ' ORDER BY ' . $parameters['order'];
+		}
+		if (!empty($parameters['group'])) {
+			$sql .= ' GROUP BY ' . $parameters['GROUP'];
+		}
+		if (!empty($parameters['limit'])) {
+			if (!empty($parameters['offset'])) {
+				$sql .= ' LIMIT ' . $parameters['offset'] . ', ' . $parameters['limit'];
+			} else {
+				$sql .= ' LIMIT ' . $parameters['limit'];
+			}
+		}
+		return $this->records_by_query($sql);
+	}
+	
+	function record_where($conditions = null, $parameters = null) {
+		if (is_null($parameters)) {
+			$parameters = array('limit' => '1');
+		} else {
+			$parameters['limit'] = 1;
+		}
+		return records_where($conditions, $parameters);
+	}
+	
 	function __get($name) {
-		return $this->_attr($name);
+		return $this->$name();
 	}
 	
 	function __set($name, $value) {
-		return $this->_attr($name, $value);
+		return $this->$name($value);
 	}
 	
 	function load_where($where) { /* {{{ */
@@ -300,6 +406,7 @@ class db_entity { /* {{{ */
 		$this->table_info = db_desc($this->table);
 		$cols = $this->table_info->columns;
 		foreach ($cols as $key => $value) {
+			$typedef = array();
 			if (preg_match('/(varchar|[a-z]*int)\\((\\d+)\\)/i', $cols->{$key}['Type'], $typedef)) {
 				$cols->{$key}['Size'] = $typedef[2];
 				if ($typedef[1] == 'varchar' && $typedef[2] > 255) {

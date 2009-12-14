@@ -129,7 +129,7 @@ class database {
 	}
 	
 	function desc($table) {
-		$qr = mysql_query('DESC ' . $this->escape($table), $this->_connection);
+		$qr = mysql_query('DESC ' . $this->escape($table), $this->_connection) or die('error!');
 		$cols_full = new stdClass();
 		$cols_names = array();
 		$pri = false;
@@ -240,6 +240,15 @@ class database {
 		}
 	}
 	
+	function get_entity($entity_name) {
+		if (file_exists("model/$entity_name.inc")) {
+			require_once "$entity_name.inc";
+			return new $entity_name();
+		} else {
+			require_once 'model/orm.inc';
+			return new universal_entity($entity_name);
+		}
+	}
 }
 
 $db = new database();
@@ -289,6 +298,10 @@ function db_escape($string) {
 
 function db_date($timestamp = null) {
 	return $GLOBALS['db']->date($timestamp);
+}
+
+function db_get_entity($entity_name) {
+	return $GLOBALS['db']->get_entity($entity_name);
 }
 
 ?>

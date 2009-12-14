@@ -1,11 +1,11 @@
-<h2 class="page_section">View item</h2>
+<h2 class="page_section">Viewing record #{$table_info->columns->id.Value}</h2>
 
 <a href="{$pp}..">Back to index</a>
 
 <dl>
-{foreach from=$data item=value key=key}
+{foreach from=$table_info->columns item=column key=key}
 	<dt><strong>{$key}</strong></dt>
-	<dd style="padding: 10px;">{$value}</dd>
+	<dd style="padding: 10px;">{$column.Value}</dd>
 {/foreach}
 </dl>
 

@@ -73,18 +73,24 @@ class crud_ctl extends std_ctl {
 	function __init() {
 		
 		if (!$this->table) {
-			$this->table = preg_replace('/_ctl$/', '', get_class($this));
+			$entity_name = preg_replace('/_ctl$/', '', get_class($this));
+			$this->table = $entity_name;
+			$this->entity_name = $entity_name;
+		} elseif (!$this->entity_name) {
+			$entity_name = $this->table;
+			$this->entity_name = $entity_name;
+		} else {
+			$entity_name = $this->entity_name;
 		}
 		
-		//if (file_exists('model/
-		
-		require_once 'model/orm.inc';
-		$this->entity = new universal_entity($this->table);
+		$entity = db_get_entity($entity_name);
 		
 		if ($this->entity_id) {
-			$this->entity->load($this->entity_id);
-			$this->tpl->add($this->entity_name, $this->entity->as_array());
+			$entity->load($this->entity_id);
 		}
+		
+		$this->entity = $entity;
+		$this->tpl->add($entity_name, $entity->as_array());
 		
 		if (!$this->screen) {
 			$this->screen = $this->entity_id ? 'view' : 'index';
@@ -93,7 +99,7 @@ class crud_ctl extends std_ctl {
 		$this->tpl->add('table_info', $this->entity->desc());
 		$this->tpl->add('pk', $this->entity_id);
 		
-		$view_name = $this->view_prefix . $this->table . '.' . $this->screen;
+		$view_name = $this->view_prefix . $entity_name . '.' . $this->screen;
 		if ($this->tpl->view_defined($view_name, $checked_files)) {
 			$this->tpl->view($view_name);
 		} else {

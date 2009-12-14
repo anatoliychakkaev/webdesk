@@ -15,7 +15,7 @@
 		{if $note->tags}
 		<div class="tags">
 			{foreach from=$note->tags item=tag}
-				<a href="{$pp}by_tag/{$tag}">{$tag}</a>
+				<a href="{$pp}by_tag/{$tag->name}">{$tag->name}</a>
 			{/foreach}
 		</div>
 		{/if}
