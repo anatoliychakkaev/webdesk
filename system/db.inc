@@ -129,7 +129,10 @@ class database {
 	}
 	
 	function desc($table) {
-		$qr = mysql_query('DESC ' . $this->escape($table), $this->_connection) or die('error!');
+		$qr = mysql_query('DESC ' . $this->escape($table), $this->_connection);
+		if (!$qr) {
+			return false;
+		}
 		$cols_full = new stdClass();
 		$cols_names = array();
 		$pri = false;

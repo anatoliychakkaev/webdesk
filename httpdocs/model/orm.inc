@@ -411,6 +411,9 @@ class db_entity { /* {{{ */
 			return $this->table_info;
 		}
 		$this->table_info = db_desc($this->table);
+		if (!$this->table_info) {
+			return false;
+		}
 		$cols = $this->table_info->columns;
 		foreach ($cols as $key => $value) {
 			$typedef = array();

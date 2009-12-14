@@ -26,6 +26,9 @@
 		var first = true;
 		for (i = 0; i < len; i++) {
 			item = items[i];
+			if (!item) {
+				continue;
+			}
 			if (!value || item.toLowerCase().indexOf(value) === 0) {
 				options.push('<li' + (first ? ' class="selected"' : '') +
 					' onmouseover="$(this).addClass(\'selected\').siblings(\'.selected\').removeClass(\'selected\')">' +
