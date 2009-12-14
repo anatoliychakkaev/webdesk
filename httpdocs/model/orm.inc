@@ -56,7 +56,7 @@ class db_entity { /* {{{ */
 		}
 		// build collection
 		$matches = array();
-		if (preg_match('/^find(_all|)(_by_(.*))?$/', $name, $matches)) {
+		if (preg_match('/^find(_all|)(_by_(.*))?$/', $name, $matches)) { /* {{{ */
 			if (($has_conditions = isset($matches[2]))) {
 				$conditions = preg_split('/_and_/', $matches[3]);
 			}
@@ -86,6 +86,7 @@ class db_entity { /* {{{ */
 			else {
 				return $this->record_where($query_conditions, $parameters);
 			}
+			/* }}} */
 		}
 		// has many
 		if (isset($this->has_many[$name])) {
@@ -97,8 +98,8 @@ class db_entity { /* {{{ */
 				);
 			} elseif (is_array($table)) {
 				$entity = db_get_entity($table['name']);
-				if (isset($table['trough'])) {
-					$_thr = $table['trough'];
+				if (isset($table['through'])) {
+					$_thr = $table['through'];
 					$_tab = $table['name'];
 					return $entity->records_where(
 						array($this->table . '_id' => $this->id),
@@ -117,15 +118,16 @@ class db_entity { /* {{{ */
 	
 	function records_by_query($sql) {
 		$records = db_fetch_all($sql);
-		$class_name = get_class($this);
 		$result = array();
 		foreach ($records as $record) {
-			$result[] = new $class_name($record);
+			$obj = db_get_entity($this->table);
+			$obj->set_attributes($record);
+			$result[] = $obj;
 		}
 		return $result;
 	}
 	
-	function records_where($conditions = null, $parameters = null) {
+	function records_where($conditions = null, $parameters = null) { /* {{{ */
 		$query_conditions = array(1);
 		if (is_array($conditions)) {
 			foreach ($conditions as $key => $value) {
@@ -142,7 +144,7 @@ class db_entity { /* {{{ */
 		}
 		$sql = '
 			SELECT ' . $parameters['columns'] . '
-			FROM `' . $this->table . '`
+			FROM `' . $this->table . '` ' . @$parameters['join'] . '
 			WHERE ' . join(' AND ', $query_conditions) . '
 		';
 		if (!empty($parameters['order'])) {
@@ -159,6 +161,7 @@ class db_entity { /* {{{ */
 			}
 		}
 		return $this->records_by_query($sql);
+		/* }}} */
 	}
 	
 	function record_where($conditions = null, $parameters = null) {
@@ -171,11 +174,15 @@ class db_entity { /* {{{ */
 	}
 	
 	function __get($name) {
-		return $this->$name();
+		if ($this->has($name)) {
+			return $this->_attr($name);
+		} else {
+			return $this->$name();
+		}
 	}
 	
 	function __set($name, $value) {
-		return $this->$name($value);
+		return $this->_attr($name, $value);
 	}
 	
 	function load_where($where) { /* {{{ */
@@ -299,8 +306,8 @@ class db_entity { /* {{{ */
 		/* }}} */
 	}
 	
-	function set_attributes($attrubutes) {
-		$this->_attr($attrubutes);
+	function set_attributes($attributes) {
+		$this->_attr($attributes);
 	}
 	
 	/**
@@ -343,7 +350,6 @@ class db_entity { /* {{{ */
 			}
 			return $attr;
 		case 1: // misc
-			
 			// return all attributes as array (true) or object (false)
 			if (is_bool($data_or_name)) {
 				if ($data_or_name) {
@@ -354,6 +360,7 @@ class db_entity { /* {{{ */
 			}
 			// return value of attribute by his name or null if not exists
 			if (is_scalar($data_or_name)) {
+				//lg(get_class($this) . '::' . $data_or_name . ' = ' . $this->attributes[$data_or_name]);
 				return isset($this->attributes[$data_or_name]) ?
 					$this->attributes[$data_or_name] :
 					null;
