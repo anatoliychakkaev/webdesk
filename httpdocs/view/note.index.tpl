@@ -37,10 +37,11 @@
 	color: #779;
 }
 .topic {
-	background: #ddd;
+	background: #f8f8f8;
 	border: 1px solid #aaa;
 	margin: 10px;
 	padding: 10px;
+	-moz-border-radius: 10px;
 }
 {/literal}
 </style>

@@ -19,19 +19,19 @@ $(function () {
 });
 
 function validate_form(form) {
-	if (!form.mixed_value.value && form.outlay_category_id.selectedIndex === 0) {
-		form.outlay_category_id.focus();
-		return false;
-	}
-	return true;
+	return form.mixed_value.value !== '';
 }
+
+$(function () {
+	$('#outlay_mix')[0].focus();
+});
 {/literal}
 </script>
 
 <form action="{$pp}create" onsubmit="return validate_form(this);" method="POST">
 	<input type="hidden" name="security_token" value="{$security_token}" />
 	
-	<input type="text" id="outlay_mix" name="mixed_value" size="50" maxlength="100" tabindex="1" style="background: #fff; border: 1px solid #999; -moz-border-radius: 3px;" autocomplete="off" />
+	<input type="text" id="outlay_mix" name="mixed_value" size="50" maxlength="100" tabindex="1" style="background: #fff; border: 1px solid #999; -moz-border-radius: 3px; -webkit-border-radius: 3px;" autocomplete="off" />
 	<input type="submit" value="Добавить запись о расходе" tabindex="1" />
 	<div style="display: none;">
 		
