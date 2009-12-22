@@ -47,9 +47,9 @@ div.clear {
 	line-height: 20px;
 	vertical-align:middle;
 	
-	border-bottom: 1px solid #d4d5d4;
-	background: #eee;
-	color: #666;
+	border-bottom: 2px outset #7e8d99;
+	background: #0e1d29;
+	color: #fff;
 	text-align:right;
 	z-index: 2;
 	
@@ -60,6 +60,7 @@ div.clear {
 }
 
 #header a {
+	color: #00aeef;
 	text-decoration: none;
 }
 
