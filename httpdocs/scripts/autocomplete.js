@@ -119,17 +119,19 @@
 					return true;
 				}
 				ie_selection($input[0]);
-				var $li = $autocomplete_menu.find('li.selected'),
-					inp = $input[0],
-					after_cursor = inp.value.substr(inp.selectionEnd),
-					before_cursor = inp.value.substr(0, inp.selectionStart),
-					matched_part = $li.html().match(/\<strong\>(.*?)\<\/strong\>/)[1];
+				location.hash = $autocomplete_menu;
+				var $li = $autocomplete_menu.find('li.selected');
+				var inp = $input[0];
+				var after_cursor = inp.value.substr(inp.selectionEnd);
+				var before_cursor = inp.value.substr(0, inp.selectionStart);
+				var matched_part = $li.html().match(/\<strong\>(.*?)\<\/strong\>/i)[1] || '';
+				location.hash = matched_part;
 					
 				before_cursor = before_cursor.substr(0, before_cursor.length -
 					matched_part.length) + matched_part;
 				
 				inp.value = before_cursor +
-					$li.html().replace(/\<strong\>.*?\<\/strong\>/, '') +
+					$li.html().replace(/\<strong\>.*?\<\/strong\>/i, '') +
 					$autocomplete_menu.suffix + after_cursor;
 					
 				hide_menu();
@@ -217,8 +219,8 @@
 			
 			$autocomplete_menu.click(apply_selected);
 			
-			var old_onkeydown = input.onkeydown;
-			input[$.browser.opera ? 'onkeypress' : 'onkeydown'] = function (e) {
+			var old_onkeypress = input.onkeypress;
+			input.onkeypress = function (e) {
 				e = e || window.event;
 				var char_code = e.keyCode || e.charCode;
 				if (!char_code) {
@@ -233,7 +235,7 @@
 						handle_literal_char(char_code, options);
 					}, 100);
 				}
-				return $.isFunction(old_onkeydown) ? old_onkeydown(e) : true;
+				return $.isFunction(old_onkeypress) ? old_onkeypress(e) : true;
 			};
 		});
 	};
