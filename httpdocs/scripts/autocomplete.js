@@ -82,7 +82,7 @@
 		var options = prepare_input_parameters(items);
 		
 		return this.each(function () {
-			var $fake_input = $('<div style="float: left;"><\/div>');
+			var $fake_input = $('<div style="float: left;display: none;"><\/div>');
 			var $input = $(this);
 			var input = this;
 			var $autocomplete_menu = $('<div class="autocomplete_menu"><\/div>');
