@@ -38,7 +38,27 @@
 			}
 		}
 		$menu.html('<ul>' + options.join('') + '<\/ul>');
-		return options.length > 0;
+		return options.length;
+	}
+	
+	function ie_selection(element) {
+		if ($.browser.msie) {
+			var yourrange = element.createTextRange();
+			try {
+				yourrange.setEndPoint('EndToStart', document.selection.createRange());
+			} catch (e) {
+				
+			}
+			element.selectionStart = yourrange.text.length;
+			element.selectionEnd = element.selectionStart + yourrange.text.length;
+		}
+	}
+	
+	function prepare_items(array_of_items) {
+		for (var i = 0, len = array_of_items.length; i < len; i++ ) {
+			array_of_items[i] = array_of_items[i].toString();
+		}
+		return array_of_items;
 	}
 	
 	function prepare_input_parameters(items) {
@@ -47,10 +67,15 @@
 			if (typeof items[0] === 'string') {
 				options.push({
 					regex: /^(.*)$/,
-					items: items
+					items: prepare_items(items)
 				});
 			} else if (items[0].regex && items[0].items) {
 				// TODO: make input parameters more configurable
+				for (i in items) {
+					if (typeof i === 'integer') {
+						items[i].items = prepare_items(items[i].items);
+					}
+				}
 				return items;
 			}
 		} else if (typeof items === 'object') {
@@ -58,7 +83,7 @@
 				if (items.hasOwnProperty(i) && typeof i === 'string') {
 					options.push({
 						regex: new RegExp(i.length === 1 ? '\\' + i + '([^\\' + i + ']*)$' : i),
-						items: items[i]
+						items: prepare_items(items[i])
 					});
 				}
 			}
@@ -95,17 +120,8 @@
 			$fake_input.css(css);
 			$('body').append($fake_input).append($autocomplete_menu);
 			
-			function ie_selection(element) {
-				if ($.browser.msie) {
-					var yourrange = element.createTextRange();
-					try {
-						yourrange.setEndPoint('EndToStart', document.selection.createRange());
-					} catch (e) {
-						
-					}
-					element.selectionStart = yourrange.text.length;
-					element.selectionEnd = element.selectionStart + yourrange.text.length;
-				}
+			if ($input.attr('autocomplete') !== 'off') {
+				$input.attr('autocomplete', 'off');
 			}
 			
 			function show_menu() {
@@ -137,6 +153,7 @@
 					$autocomplete_menu.suffix + after_cursor;
 					
 				hide_menu();
+				inp.focus();
 			}
 			
 			function update_menu_position(matched_part) {
@@ -267,6 +284,12 @@
 					}
 				}
 			}
+			
+			$input.blur(function () {
+				setTimeout(function () {
+					hide_menu();
+				}, 200);
+			});
 		});
 	};
 })(jQuery);
