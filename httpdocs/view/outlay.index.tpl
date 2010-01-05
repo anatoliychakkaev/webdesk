@@ -82,9 +82,9 @@
 </style>
 
 <h2 class="page_section">
-	<a href="?year_week={$year_week}&go=prev">&larr;</a>
-	Расходы за {$week}-ю неделю
-	<a href="?year_week={$year_week}&go=next">&rarr;</a>
+	<a href="?year_week={$year}_{$week}&go=prev">&larr;</a>
+	Расходы за {$week}-ю неделю {$year}-го года
+	<a href="?year_week={$year}_{$week}&go=next">&rarr;</a>
 </h2>
 
 <div style="padding-bottom: 10px">

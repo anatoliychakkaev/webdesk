@@ -37,22 +37,40 @@ class outlay_ctl extends crud_ctl {
 		$year_week = cm_get('year_week', 'string') or
 		$year_week = date('Y_W');
 		list($year, $week) = split('_', $year_week);
-		if (empty($_GET['go'])) {
-			$offset = 1;
-		} else {
-			$offset = $_GET['go'] == 'prev' ? 2 : 0;
-		}
-		$time = strtotime('+' . $week - $offset . ' weeks', mktime(0, 0, 0, 1, 1, $year));
-		$date = db_date($time);
+		$year = (int) $year;
+		$week = (int) $week;
 		
+		if (isset($_GET['go'])) {
+			$week += $_GET['go'] == 'prev' ? -1 : 1;
+			if ($week == 0) {
+				$year--;
+				$week = 53;
+			} elseif ($week == 54) {
+				$year++;
+				$week = 1;
+			}
+		}
+		lg($week . ' week of ' . $year . ' year');
+		$first_jan = mktime(0, 0, 0, 1, 1, $year);
+		$weekday_first_jan = (int) strftime('%w', $first_jan);
+		$delta = 4 - $weekday_first_jan;
+		
+		if ($delta < 0) {
+			$delta = $delta + 7;
+		}
+		
+		$first_week_start = $first_jan + ($delta - 3) * 86400;
+		$nth_week_start = $first_week_start + 86400 * 7 * ($week - 1);
+		$nth_week_end = $nth_week_start + 86400 * 7 - 1;
+		$date_start = db_date($nth_week_start);
+		$date_end = db_date($nth_week_end);
 		$sql_breakdown = '
 			SELECT SUM(outlay.value) AS sum, c.name
 			FROM
 				outlay INNER JOIN
 				outlay_category c ON c.id = outlay.outlay_category_id
 			WHERE
-				WEEK(TIMESTAMPADD(DAY, -1, outlay.created_at)) =
-				WEEK(TIMESTAMPADD(DAY, -1, "' . $date . '"))
+				outlay.created_at BETWEEN "' . $date_start . '" AND "' . $date_end . '"
 			GROUP BY
 				c.name
 		';
@@ -69,8 +87,7 @@ class outlay_ctl extends crud_ctl {
 				outlay_category c ON c.id = outlay.outlay_category_id LEFT JOIN
 				user ON user.id = outlay.user_id
 			WHERE
-				WEEK(TIMESTAMPADD(DAY, -1, outlay.created_at)) =
-				WEEK(TIMESTAMPADD(DAY, -1, "' . $date . '"))
+				outlay.created_at BETWEEN "' . $date_start . '" AND "' . $date_end . '"
 			ORDER BY
 				MONTH(outlay.created_at),
 				weekday ASC,
@@ -131,8 +148,9 @@ class outlay_ctl extends crud_ctl {
 		
 		$this->tpl->add('index', $outlay);
 		$this->tpl->add('weekdata', $weekdata);
-		$this->tpl->add('year_week', date('Y_W', $time));
-		$this->tpl->add('week', date('W', $time));
+		$this->tpl->add('year', $year);
+		//die(date('Y_W', $first_week_start));
+		$this->tpl->add('week', $week);
 		$this->tpl->view('outlay.index');
 	}
 	
