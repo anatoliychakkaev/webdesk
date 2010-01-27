@@ -1,6 +1,6 @@
 <?php
 
-require_once 'model/orm.inc';
+require_once 'orm.inc';
 
 class user extends db_entity { /* {{{ */
 	

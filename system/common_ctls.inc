@@ -59,7 +59,7 @@ class crud_ctl extends std_ctl {
 	**/
 	var $table;
 	
-	var $entity_name = 'data';
+	var $entity_name;
 	
 	/**
 	 * WTF???
@@ -80,6 +80,7 @@ class crud_ctl extends std_ctl {
 			$entity_name = $this->table;
 			$this->entity_name = $entity_name;
 		} else {
+			var_dump($this);
 			$entity_name = $this->entity_name;
 		}
 		

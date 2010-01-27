@@ -12,9 +12,9 @@ class db_entity { /* {{{ */
 	
 	function db_entity($initializer = null) { /* {{{ */
 		$class_name = get_class($this);
-		if ($class_name === 'db_entity') {
+		if ($class_name === get_class()) {
 			debug_print_backtrace();
-			trigger_error('Class db_entity is abstract, cannot be instantiated');
+			trigger_error('Class ' . get_class() . ' is abstract, cannot be instantiated');
 		}
 		
 		if (!$this->table) {
@@ -209,7 +209,7 @@ class db_entity { /* {{{ */
 	
 	function load($id) { /* {{{ */
 		if (!$GLOBALS['db']->object_exists($this->table)) {
-			trigger_error('Table ' . $this->table . ' not exists');
+			trigger_error('Table ' . $this->table . ' not exists in ' . get_class($this));
 		}
 		$data = db_fetch_one('
 			SELECT *
