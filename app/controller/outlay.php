@@ -177,6 +177,19 @@ class outlay_ctl extends crud_ctl {
 		}
 	}
 	
+	function report() {
+		$data = db_fetch_all('
+			SELECT min(created_at) as date, sum(value) as sum
+			FROM outlay
+			WHERE outlay_category_id = 6
+			GROUP BY year(created_at), month(created_at)
+		');
+		foreach ($data as $i => $p) {
+			$data[$i]->time = strtotime($p->date);
+		}
+		$this->tpl->add('data', $data);
+	}
+	
 	function edit() {
 		$this->tpl->add('outlay', db_fetch_one('SELECT * FROM outlay WHERE id = ' . $this->entity_id));
 		parent::edit();
