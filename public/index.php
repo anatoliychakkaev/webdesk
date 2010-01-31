@@ -56,7 +56,7 @@
 	 * @return object controller
 	**/
 	function get_controller_by_name($controller) {
-		$ctrl_file = 'controller/' . $controller . '.php';
+		$ctrl_file = '../app/controller/' . $controller . '.php';
 		if (file_exists($ctrl_file)) {
 		
 			exec("echo 'Controller [{$GLOBALS['controller']}] loaded.' >> /tmp/weblog");

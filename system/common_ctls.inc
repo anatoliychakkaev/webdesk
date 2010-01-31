@@ -10,6 +10,7 @@ class std_ctl {
 		$path_prefix = '';
 		$this->screen 	= @$path[$current_index]	or	$this->screen		= '';
 		// define entity (if action starts with numer or uppercase letter)
+		$entity = array();
 		if (preg_match('/^([A-Z]*)([0-9]+)$/', $this->screen, $entity)) {
 			
 			$this->entity_code	= $entity[1];
@@ -80,7 +81,6 @@ class crud_ctl extends std_ctl {
 			$entity_name = $this->table;
 			$this->entity_name = $entity_name;
 		} else {
-			var_dump($this);
 			$entity_name = $this->entity_name;
 		}
 		

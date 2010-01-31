@@ -48,7 +48,7 @@ class db_ctl extends std_ctl { /* {{{ */
 			$this->tpl->add('table', $this->tbl_name);
 			$this->full_tbl_name = '`' . db_escape($this->db_name) . '`.`' . db_escape($this->tbl_name) . '`';
 		}
-		
+		return '';
 		return join('/', $path);
 		
 		/* }}} */
