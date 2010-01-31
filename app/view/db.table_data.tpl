@@ -1,9 +1,21 @@
-<div>
-	<a href="{$pp}">{$config->db_server}</a> /
-	<a href="{$pp}{$database}">{$database}</a> /
-	<a href="{$pp}{$database}/{$table}">{$table}</a> /
-	<a href="data" style="font-size:150%">data</a>
-</div>
+<h2 class="page_section">
+	Data in `{$database}`.`{$table}` table
+	<div class="note">
+		Back to >
+		<a href="{$pp}{$database}/{$table}">
+			table info
+		</a>
+		>
+		<a href="{$pp}{$database}">
+			list tables
+		</a>
+		>
+		<a href="{$pp}">
+			list databases
+		</a>
+	</div>
+</h2>
+
 
 <div style="margin-top:10px;margin-bottom:10px;">
 {section name=page start=0 loop=$data->pages_count}

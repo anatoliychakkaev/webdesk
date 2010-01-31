@@ -244,11 +244,11 @@ class database {
 	}
 	
 	function get_entity($entity_name) {
-		if (file_exists("model/$entity_name.inc")) {
+		if (file_exists("$entity_name.inc")) {
 			require_once "$entity_name.inc";
 			return new $entity_name();
 		} else {
-			require_once 'model/orm.inc';
+			require_once 'orm.inc';
 			return new universal_entity($entity_name);
 		}
 	}

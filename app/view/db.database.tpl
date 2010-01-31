@@ -1,4 +1,13 @@
-<h2><a href="{$pp}{$database}">{$database}</a></h2>
+<h2 class="page_section">
+	Database `{$database}`
+	<div class="note">
+		return to 
+		<a href="{$pp}">databases list</a>
+	</div>
+</h2>
+
+<ul>
 {foreach from=$tables item=t}
-	<a href="{$pp}{$database}/{$t}">{$t}</a><br/>
+	<li><a href="{$pp}{$database}/{$t}">{$t}</a></li>
 {/foreach}
+</ul>

@@ -36,6 +36,11 @@ h2.page_section {
 	margin-right: -10px;
 }
 
+h2 .note {
+	float: right;
+	font-weight: normal;
+}
+
 div.clear {
 	clear: both;
 }

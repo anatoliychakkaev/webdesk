@@ -23,7 +23,7 @@ require_once	'session.inc';
 
 // templator
 $config->smarty_dir		= $config->base_path . '/smarty';
-$config->template_dir	= $config->base_path . '/httpdocs/view';
+$config->template_dir	= $config->base_path . '/app/view';
 require_once	'template.inc';
 $tpl = new Template();
 
