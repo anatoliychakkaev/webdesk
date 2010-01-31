@@ -2,25 +2,23 @@
 <script language="javascript" type="text/javascript" src="/scripts/flot/jquery.flot.js"></script>
 
 <script>
-var data = [
-{foreach from=$data item=point name=report}
-[{$point->time}000, {$point->sum}]{if !$smarty.foreach.report.last},{/if}
-{/foreach}
-
-];
+var reports = [
+	{foreach from=$reports item=r name=reports}
+	{ldelim}
+		label: '{$r->label}',
+		data: [
+			{foreach from=$r->data item=point name=report}[{$point->time}000, {$point->sum}]{if !$smarty.foreach.report.last},{/if}{/foreach}
+		]
+	{rdelim}{if !$smarty.foreach.reports.last},{/if}
+	{/foreach}
+]
 {literal}
 $(function () {
-    $.plot($("#placeholder"), [ data]);
-	$.plot($("#placeholder"), [
-			{
-				data: data,
-				label: "Outlays"
-			}
-		],
+	$.plot($("#placeholder"), reports,
 		{
 			xaxis: {
 				mode: "time",
-				timeformat: "%y %b"
+				timeformat: "%b %y"
 			},
 			yaxis: {
 				min: 0
@@ -29,13 +27,13 @@ $(function () {
 				tickFormatter: function (v, axis) { return v.toFixed(axis.tickDecimals) +"р." }
 			},
 			legend: {
-				position: 'sw'
-			} 
+				position: 'nw'
+			}
 		}
 	);
 });
 {/literal}
 </script>
 
-<div id="placeholder" style="width:600px;height:300px;"></div>
+<div id="placeholder" style="width:800px;height:300px;"></div>
 

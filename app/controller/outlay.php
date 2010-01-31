@@ -178,16 +178,31 @@ class outlay_ctl extends crud_ctl {
 	}
 	
 	function report() {
-		$data = db_fetch_all('
-			SELECT min(created_at) as date, sum(value) as sum
+		$categories = db_fetch_all('SELECT * FROM outlay_category');
+		$summary->label = 'Все расходы';
+		$summary->data = db_fetch_all('
+			SELECT year(`created_at`) as year, month(`created_at`) as month, sum(value) as sum
 			FROM outlay
-			WHERE outlay_category_id = 6
 			GROUP BY year(created_at), month(created_at)
 		');
-		foreach ($data as $i => $p) {
-			$data[$i]->time = strtotime($p->date);
+		$reports = array($summary);
+		foreach ($categories as $category) {
+			$c = new stdClass();
+			$c->label = $category->name;
+			$c->data = db_fetch_all('
+				SELECT year(`created_at`) as year, month(`created_at`) as month, sum(`value`) as sum
+				FROM `outlay`
+				WHERE `outlay_category_id` = ' . (int)$category->id . '
+				GROUP BY year(`created_at`), month(`created_at`)
+			');
+			$reports[] = $c;
 		}
-		$this->tpl->add('data', $data);
+		foreach ($reports as $r => $report) {
+			foreach ($report->data as $i => $p) {
+				$reports[$r]->data[$i]->time = mktime(0, 0, 0, $p->month, 1, $p->year);
+			}
+		}
+		$this->tpl->add('reports', $reports);
 	}
 	
 	function edit() {
