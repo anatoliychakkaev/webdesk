@@ -27,7 +27,8 @@
 			{/if}
 		</div>
 		<div style="float:right;padding-right: 5px;">
-			my webdesk
+			<a href="/">my webdesk</a>
+			<strong>{$WD_ENV}</strong>
 		</div>
 	</div>
 	<div class="contentdiv">

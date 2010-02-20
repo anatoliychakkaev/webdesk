@@ -4,6 +4,8 @@ require_once 'classes/config.inc';
 
 $config = new Config();
 
+$config->environment	= 'development';
+
 // common settings
 $config->base_path		= realpath(dirname(__FILE__) . '/..');
 $config->site_name		= 'Webdesk';
@@ -26,6 +28,7 @@ $config->smarty_dir		= $config->base_path . '/smarty';
 $config->template_dir	= $config->base_path . '/app/view';
 require_once	'template.inc';
 $tpl = new Template();
+$tpl->add_secondary('WD_ENV', $config->environment);
 
 // locale
 setlocale(LC_ALL, 'ru_RU.utf8');

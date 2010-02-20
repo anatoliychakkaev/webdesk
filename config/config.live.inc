@@ -4,6 +4,8 @@ require_once 'classes/config.inc';
 
 $config = new Config();
 
+$config->environment	= 'production';
+
 // common settings
 $config->base_path		= realpath(dirname(__FILE__) . '/..');
 $config->site_name		= 'Webdesk';
