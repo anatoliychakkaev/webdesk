@@ -105,7 +105,7 @@
 		$ctl->__run();
 		
 		$parent_ctl = $ctl;
-		break;
+		//break;
 		
 	} while ($path_offset < count($path));
 	

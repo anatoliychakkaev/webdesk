@@ -233,7 +233,7 @@ class database {
 			} else {
 				$desc = $this->desc($table);
 				if (is_string($columns)) {
-					return isset($desc->col_names[$columns]);
+					return in_array($columns, $desc->col_names);
 				} else {
 					return count(array_intersect($desc->col_names, $columns)) == count(array_unique($columns));
 				}
@@ -305,6 +305,10 @@ function db_date($timestamp = null) {
 
 function db_get_entity($entity_name) {
 	return $GLOBALS['db']->get_entity($entity_name);
+}
+
+function db_object_exists($table, $columns = null) {
+	return $GLOBALS['db']->object_exists($table, $columns);
 }
 
 ?>

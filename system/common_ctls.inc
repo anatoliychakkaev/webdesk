@@ -25,6 +25,12 @@ class std_ctl {
 			$this->entity_id		= 0;
 			
 		}
+		if ($this->entity_id) {
+			$current_index += 1;
+		}
+		if ($this->screen && method_exists($this, $this->screen)) {
+			$current_index += 1;
+		}
 		return $path_prefix;
 	}
 	
@@ -44,7 +50,9 @@ class std_ctl {
 	}
 
 	function __run() {
-		$this->{$this->screen}();
+		if (method_exists($this, $this->screen)) {
+			$this->{$this->screen}();
+		}
 	}
 	
 	function _relative_redirect($path = '') {
@@ -172,6 +180,7 @@ class crud_ctl extends std_ctl {
 			$this_fk = $this->entity_name . '_id';
 			$parent_link_table = config('db_prefix') . $this->parent_ctl->entity_name . '_to_' . $this->entity_name;
 			$parent_link_table_alter = config('db_prefix') . $this->entity_name . '_to_' . $this->parent_ctl->entity_name;
+			lg('aaaaaaaaaaaa "' . db_object_exists($this->table, $parent_fk) . '" '. $this->table . ' ' . $parent_fk);
 			if (db_object_exists($this->table, $parent_fk)) {
 				$sql .= ' WHERE `' . $parent_fk . '` = ' . (int)$this->parent_ctl->entity_id;
 			} elseif (db_object_exists($parent_link_table, array($parent_fk, $this_fk))) {

@@ -21,6 +21,11 @@ class db_entity { /* {{{ */
 			$this->table = $class_name;
 		}
 		
+		if (!db_object_exists($this->table) && db_object_exists(config('db_prefix') . $this->table)) {
+			$this->table = config('db_prefix') . $this->table;
+		}
+		lg($this->table);
+		
 		if (is_null($initializer)) {
 			return;
 		}

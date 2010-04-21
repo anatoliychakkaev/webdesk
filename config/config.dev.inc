@@ -15,6 +15,7 @@ $config->db_server		= 'localhost';
 $config->db_user		= 'wd';
 $config->db_password	= '';
 $config->db_name		= 'webdesk';
+$config->db_prefix		= 'wd_';
 require_once	'db.inc';
 
 // session

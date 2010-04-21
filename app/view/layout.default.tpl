@@ -16,6 +16,8 @@
 </head>
 <body>
 <div class="wrap">
+	<iframe style="1px solid #ccc ; margin: 0 0 15px 0 ;" src="http://www.seatplans.com/widget?debug=1" width="250" height="125" scrolling="no" frameborder="0"></iframe>
+	<iframe style="1px solid #ccc ; margin: 0 0 15px 0 ;" src="http://www.seatplans.com/flightsearch-widget?debug=1" width="300" height="250" scrolling="no" frameborder="0"></iframe>
 	<div id="header" style="clear: both;">
 		<div style="float:left;">
 			{if $user->logged_in}
