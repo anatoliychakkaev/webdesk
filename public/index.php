@@ -1,6 +1,6 @@
 <?php
 	//var_dump($_SESSION);exit;
-	list($msec, $sec) = split(' ', microtime());
+	list($msec, $sec) = preg_split('/\\s/', microtime());
 	$timeBegin = $sec + $msec;
 	
 	// get and save full path
